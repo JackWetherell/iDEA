@@ -500,10 +500,10 @@ def propagate(
     # Initilise the single-body time-dependent evolution.
     evolution = iDEA.state.SingleBodyEvolution(state)
     evolution.up.td_orbitals = np.zeros(
-        shape=(t.shape[0], s.x.shape[0], state.up.occupied.shape[0]), dtype=np.complex
+        shape=(t.shape[0], s.x.shape[0], state.up.occupied.shape[0]), dtype=complex
     )
     evolution.down.td_orbitals = np.zeros(
-        shape=(t.shape[0], s.x.shape[0], state.down.occupied.shape[0]), dtype=np.complex
+        shape=(t.shape[0], s.x.shape[0], state.down.occupied.shape[0]), dtype=complex
     )
     evolution.up.td_orbitals[0, :, :] = state.up.orbitals[:, state.up.occupied]
     evolution.down.td_orbitals[0, :, :] = state.down.orbitals[:, state.down.occupied]
