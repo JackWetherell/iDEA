@@ -1,4 +1,3 @@
 poetry.lock
-src/iDEA/__pycache__/
-src/test.py
-src/iDEA/methods/__pycache__/
+iDEA/__pycache__/
+iDEA/methods/__pycache__/
