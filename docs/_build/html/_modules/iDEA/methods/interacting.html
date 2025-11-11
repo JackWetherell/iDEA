@@ -1,189 +1,98 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en">
 <head>
   <meta charset="utf-8" />
-  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>iDEA.methods.interacting &mdash; iDEA 1.0.0 documentation</title>
-  
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
 
   
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
-    
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=af2ce170"></script>
+      <script src="../../../_static/doctools.js?v=888ff710"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../../../index.html" class="icon icon-home"> iDEA
           
-
-          
+          <a href="../../../index.html" class="icon icon-home">
+            iDEA
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules.html">iDEA</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">iDEA</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-        
-          <li><a href="../../index.html">Module code</a> &raquo;</li>
-        
-          <li><a href="../methods.html">iDEA.methods</a> &raquo;</li>
-        
-      <li>iDEA.methods.interacting</li>
-    
-    
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../methods.html">iDEA.methods</a></li>
+      <li class="breadcrumb-item active">iDEA.methods.interacting</li>
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for iDEA.methods.interacting</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Contains all interacting functionality and solvers.&quot;&quot;&quot;</span>
 
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">string</span>
-<span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">import</span> <span class="nn">functools</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="k">as</span> <span class="nn">sps</span>
-<span class="kn">import</span> <span class="nn">scipy.sparse.linalg</span> <span class="k">as</span> <span class="nn">spsla</span>
-<span class="kn">import</span> <span class="nn">iDEA.system</span>
-<span class="kn">import</span> <span class="nn">iDEA.state</span>
-<span class="kn">import</span> <span class="nn">iDEA.methods.non_interacting</span>
-
-
-<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;iDEA_GPU&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;True&quot;</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">cupy</span> <span class="k">as</span> <span class="nn">cnp</span>
-    <span class="kn">import</span> <span class="nn">cupyx.scipy.sparse</span> <span class="k">as</span> <span class="nn">csps</span>
-    <span class="kn">import</span> <span class="nn">cupyx.scipy.sparse.linalg</span> <span class="k">as</span> <span class="nn">cspsla</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">string</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sps</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.sparse.linalg</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">spsla</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">iDEA.system</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">iDEA.state</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">iDEA.methods.non_interacting</span>
 
 
 <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;interacting&quot;</span>
 
 
-<div class="viewcode-block" id="kinetic_energy_operator"><a class="viewcode-back" href="../../../iDEA.html#iDEA.methods.interacting.kinetic_energy_operator">[docs]</a><span class="k">def</span> <span class="nf">kinetic_energy_operator</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sps</span><span class="o">.</span><span class="n">dia_matrix</span><span class="p">:</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="kinetic_energy_operator"><a class="viewcode-back" href="../../../iDEA.html#iDEA.methods.interacting.kinetic_energy_operator">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">kinetic_energy_operator</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sps</span><span class="o">.</span><span class="n">dia_matrix</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute many-particle kinetic energy operator as a matrix.</span>
 
 <span class="sd">    This is built using a given number of finite differences to represent the second derivative.</span>
@@ -207,15 +116,15 @@
     <span class="n">generate_terms</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="p">(</span>
         <span class="n">fold_partial_operators</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">partial_operators</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
     <span class="p">)</span>
-    <span class="n">terms</span> <span class="o">=</span> <span class="n">generate_terms</span><span class="p">(</span><span class="n">sps</span><span class="o">.</span><span class="n">kron</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
+    <span class="n">terms</span> <span class="o">=</span> <span class="n">generate_terms</span><span class="p">(</span><span class="n">sps</span><span class="o">.</span><span class="n">kron</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
     <span class="n">K</span> <span class="o">=</span> <span class="n">sps</span><span class="o">.</span><span class="n">dia_matrix</span><span class="p">((</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span><span class="p">,)</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">:</span>
         <span class="n">K</span> <span class="o">+=</span> <span class="n">term</span>
     <span class="k">return</span> <span class="n">K</span></div>
 
 
-<div class="viewcode-block" id="external_potential_operator"><a class="viewcode-back" href="../../../iDEA.html#iDEA.methods.interacting.external_potential_operator">[docs]</a><span class="k">def</span> <span class="nf">external_potential_operator</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sps</span><span class="o">.</span><span class="n">dia_matrix</span><span class="p">:</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="external_potential_operator"><a class="viewcode-back" href="../../../iDEA.html#iDEA.methods.interacting.external_potential_operator">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">external_potential_operator</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sps</span><span class="o">.</span><span class="n">dia_matrix</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute many-particle external potential energy operator as a matrix.</span>
 
 <span class="sd">    | Args:</span>
@@ -236,15 +145,15 @@
     <span class="n">generate_terms</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="p">(</span>
         <span class="n">fold_partial_operators</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">partial_operators</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
     <span class="p">)</span>
-    <span class="n">terms</span> <span class="o">=</span> <span class="n">generate_terms</span><span class="p">(</span><span class="n">sps</span><span class="o">.</span><span class="n">kron</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
+    <span class="n">terms</span> <span class="o">=</span> <span class="n">generate_terms</span><span class="p">(</span><span class="n">sps</span><span class="o">.</span><span class="n">kron</span><span class="p">,</span> <span class="n">vext</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
     <span class="n">Vext</span> <span class="o">=</span> <span class="n">sps</span><span class="o">.</span><span class="n">dia_matrix</span><span class="p">((</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span><span class="p">,)</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">:</span>
         <span class="n">Vext</span> <span class="o">+=</span> <span class="n">term</span>
     <span class="k">return</span> <span class="n">Vext</span></div>
 
 
-<div class="viewcode-block" id="hamiltonian"><a class="viewcode-back" href="../../../iDEA.html#iDEA.methods.interacting.hamiltonian">[docs]</a><span class="k">def</span> <span class="nf">hamiltonian</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sps</span><span class="o">.</span><span class="n">dia_matrix</span><span class="p">:</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="hamiltonian"><a class="viewcode-back" href="../../../iDEA.html#iDEA.methods.interacting.hamiltonian">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">hamiltonian</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sps</span><span class="o">.</span><span class="n">dia_matrix</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the many-body Hamiltonian.</span>
 
 <span class="sd">    | Args:</span>
@@ -293,8 +202,8 @@
     <span class="k">return</span> <span class="n">H</span></div>
 
 
-<div class="viewcode-block" id="total_energy"><a class="viewcode-back" href="../../../iDEA.html#iDEA.methods.interacting.total_energy">[docs]</a><span class="k">def</span> <span class="nf">total_energy</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="total_energy"><a class="viewcode-back" href="../../../iDEA.html#iDEA.methods.interacting.total_energy">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">total_energy</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the total energy of an interacting state.</span>
 
 <span class="sd">    | Args:</span>
@@ -307,8 +216,8 @@
     <span class="k">return</span> <span class="n">state</span><span class="o">.</span><span class="n">energy</span></div>
 
 
-<span class="k">def</span> <span class="nf">_permutation_parity</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_permutation_parity</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the permulation paritiy of a given permutation.</span>
 
 <span class="sd">    | Args:</span>
@@ -327,8 +236,8 @@
     <span class="k">return</span> <span class="n">parity</span>
 
 
-<div class="viewcode-block" id="antisymmetrize"><a class="viewcode-back" href="../../../iDEA.html#iDEA.methods.interacting.antisymmetrize">[docs]</a><span class="k">def</span> <span class="nf">antisymmetrize</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">spaces</span><span class="p">,</span> <span class="n">spins</span><span class="p">,</span> <span class="n">energies</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="antisymmetrize"><a class="viewcode-back" href="../../../iDEA.html#iDEA.methods.interacting.antisymmetrize">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">antisymmetrize</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">spaces</span><span class="p">,</span> <span class="n">spins</span><span class="p">,</span> <span class="n">energies</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Antisymmetrize the solution to the Schrodinger equation.</span>
 
 <span class="sd">    | Args:</span>
@@ -409,8 +318,8 @@
     <span class="k">return</span> <span class="n">fulls</span><span class="p">,</span> <span class="n">spaces</span><span class="p">,</span> <span class="n">spins</span><span class="p">,</span> <span class="n">energies</span></div>
 
 
-<span class="k">def</span> <span class="nf">_estimate_level</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_estimate_level</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Estimate the solution to the Schrodinger equation needed to eachive given antisymetric energy state.</span>
 
 <span class="sd">    | Args:</span>
@@ -423,37 +332,10 @@
     <span class="k">return</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">up_count</span> <span class="o">-</span> <span class="n">s</span><span class="o">.</span><span class="n">down_count</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span> <span class="o">*</span> <span class="p">(</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_solve_on_gpu</span><span class="p">(</span><span class="n">H</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Solves the eigenproblem on the GPU.</span>
-
-<span class="sd">    | Args:</span>
-<span class="sd">    |     H: np.ndarray, Hamiltonian.</span>
-<span class="sd">    |     k: int, Eigenstate to solve for.</span>
-
-<span class="sd">    | Returns:</span>
-<span class="sd">    |     eigenvalues_gpu, eigenstates_gpu: tuple, Solved eigenvalues and eigenstates.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">sigma</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">which</span> <span class="o">=</span> <span class="s2">&quot;LA&quot;</span>
-    <span class="n">H_gpu_shifted</span> <span class="o">=</span> <span class="n">csps</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">(</span><span class="n">H</span> <span class="o">-</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">csps</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">(</span><span class="n">sps</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">H</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
-    <span class="n">H_gpu_LU</span> <span class="o">=</span> <span class="n">cspsla</span><span class="o">.</span><span class="n">splu</span><span class="p">(</span><span class="n">H_gpu_shifted</span><span class="p">)</span>
-    <span class="n">H_gpu_LO</span> <span class="o">=</span> <span class="n">cspsla</span><span class="o">.</span><span class="n">LinearOperator</span><span class="p">(</span><span class="n">H_gpu_shifted</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">H_gpu_LU</span><span class="o">.</span><span class="n">solve</span><span class="p">)</span>
-    <span class="n">eigenvalues_gpu</span><span class="p">,</span> <span class="n">eigenstates_gpu</span> <span class="o">=</span> <span class="n">cspsla</span><span class="o">.</span><span class="n">eigsh</span><span class="p">(</span><span class="n">H_gpu_LO</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="n">which</span><span class="p">)</span>
-    <span class="n">eigenvalues_gpu</span> <span class="o">=</span> <span class="n">eigenvalues_gpu</span>
-    <span class="n">eigenstates_gpu</span> <span class="o">=</span> <span class="n">eigenstates_gpu</span>
-    <span class="n">eigenvalues_gpu</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">eigenvalues_gpu</span> <span class="o">*</span> <span class="n">sigma</span><span class="p">)</span> <span class="o">/</span> <span class="n">eigenvalues_gpu</span>
-    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">eigenvalues_gpu</span><span class="p">)</span>
-    <span class="n">eigenstates_gpu</span> <span class="o">=</span> <span class="n">cnp</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">eigenstates_gpu</span><span class="p">)</span>
-    <span class="n">eigenvalues_gpu</span> <span class="o">=</span> <span class="n">eigenvalues_gpu</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-    <span class="n">eigenstates_gpu</span> <span class="o">=</span> <span class="n">cnp</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">eigenstates_gpu</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">eigenvalues_gpu</span><span class="p">,</span> <span class="n">eigenstates_gpu</span>
-
-
-<div class="viewcode-block" id="solve"><a class="viewcode-back" href="../../../iDEA.html#iDEA.methods.interacting.solve">[docs]</a><span class="k">def</span> <span class="nf">solve</span><span class="p">(</span>
-    <span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span>
+<div class="viewcode-block" id="solve"><a class="viewcode-back" href="../../../iDEA.html#iDEA.methods.interacting.solve">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span>
+    <span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">GPU</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyState</span><span class="p">:</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Solves the interacting Schrodinger equation of the given system.</span>
 
 <span class="sd">    | Args:</span>
@@ -461,6 +343,7 @@
 <span class="sd">    |     H: np.ndarray, Hamiltonian [If None this will be computed from s]. (default = None)</span>
 <span class="sd">    |     k: int, Energy state to solve for. (default = 0, the ground-state)</span>
 <span class="sd">    |     level: int. Max level of excitation to use when solving the Schrodinger equation.</span>
+<span class="sd">    |     GPU: bool, Solve on GPU using cupy. If false will use scipy on CPU.</span>
 
 <span class="sd">    | Returns:</span>
 <span class="sd">    |     state: iDEA.state.ManyBodyState, Solved state.</span>
@@ -477,13 +360,17 @@
         <span class="n">level</span> <span class="o">=</span> <span class="n">_estimate_level</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
 
     <span class="c1"># Solve the many-body Schrodinger equation.</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;iDEA.methods.interacting.solve: solving eigenproblem...&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;iDEA_GPU&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;True&quot;</span><span class="p">:</span>
-        <span class="n">H_gpu</span> <span class="o">=</span> <span class="n">csps</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">(</span><span class="n">H</span><span class="p">)</span>
-        <span class="n">energies</span><span class="p">,</span> <span class="n">spaces</span> <span class="o">=</span> <span class="n">_solve_on_gpu</span><span class="p">(</span><span class="n">H_gpu</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">GPU</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">cupy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cp</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">cupyx.scipy.sparse</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">csps</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">cupyx.scipy.sparse.linalg</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cspsla</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">getDeviceProperties</span><span class="p">(</span><span class="n">cp</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">Device</span><span class="p">()</span><span class="o">.</span><span class="n">id</span><span class="p">)[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;iDEA.methods.interacting.solve: solving eigenproblem on GPU: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+        <span class="n">energies</span><span class="p">,</span> <span class="n">spaces</span> <span class="o">=</span> <span class="n">cspsla</span><span class="o">.</span><span class="n">eigsh</span><span class="p">(</span><span class="n">csps</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">(</span><span class="n">H</span><span class="p">),</span> <span class="n">k</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;SA&quot;</span><span class="p">)</span>
         <span class="n">energies</span> <span class="o">=</span> <span class="n">energies</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
         <span class="n">spaces</span> <span class="o">=</span> <span class="n">spaces</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;iDEA.methods.interacting.solve: solving eigenproblem on CPU...&quot;</span><span class="p">)</span>
         <span class="n">energies</span><span class="p">,</span> <span class="n">spaces</span> <span class="o">=</span> <span class="n">spsla</span><span class="o">.</span><span class="n">eigsh</span><span class="p">(</span><span class="n">H</span><span class="o">.</span><span class="n">tocsr</span><span class="p">(),</span> <span class="n">k</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;SA&quot;</span><span class="p">)</span>
 
     <span class="c1"># Reshape and normalise the solutions.</span>
@@ -517,7 +404,7 @@
     <span class="k">return</span> <span class="n">state</span></div>
 
 
-<div class="viewcode-block" id="propagate_step"><a class="viewcode-back" href="../../../iDEA.html#iDEA.methods.interacting.propagate_step">[docs]</a><span class="k">def</span> <span class="nf">propagate_step</span><span class="p">(</span>
+<div class="viewcode-block" id="propagate_step"><a class="viewcode-back" href="../../../iDEA.html#iDEA.methods.interacting.propagate_step">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">propagate_step</span><span class="p">(</span>
     <span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span>
     <span class="n">evolution</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span><span class="p">,</span>
     <span class="n">H</span><span class="p">:</span> <span class="n">sps</span><span class="o">.</span><span class="n">dia_matrix</span><span class="p">,</span>
@@ -526,7 +413,7 @@
     <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">objs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span><span class="p">:</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Propagate a many body state forward in time, one time-step, due to a local pertubation.</span>
 
 <span class="sd">    | Args:</span>
@@ -559,14 +446,14 @@
     <span class="k">return</span> <span class="n">evolution</span></div>
 
 
-<div class="viewcode-block" id="propagate"><a class="viewcode-back" href="../../../iDEA.html#iDEA.methods.interacting.propagate">[docs]</a><span class="k">def</span> <span class="nf">propagate</span><span class="p">(</span>
+<div class="viewcode-block" id="propagate"><a class="viewcode-back" href="../../../iDEA.html#iDEA.methods.interacting.propagate">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">propagate</span><span class="p">(</span>
     <span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span>
     <span class="n">state</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyState</span><span class="p">,</span>
     <span class="n">v_ptrb</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">t</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">H</span><span class="p">:</span> <span class="n">sps</span><span class="o">.</span><span class="n">dia_matrix</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span><span class="p">:</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Propagate a many body state forward in time due to a local pertubation.</span>
 
 <span class="sd">    | Args:</span>
@@ -619,46 +506,30 @@
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2020, Jack Wetherell.
-
-    </p>
+    <p>&#169; Copyright 2020, Jack Wetherell.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

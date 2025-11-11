@@ -15,12 +15,6 @@ import iDEA.state
 import iDEA.methods.non_interacting
 
 
-if os.environ.get("iDEA_GPU") == "True":
-    import cupy as cnp
-    import cupyx.scipy.sparse as csps
-    import cupyx.scipy.sparse.linalg as cspsla
-
-
 name = "interacting"
 
 
@@ -265,35 +259,8 @@ def _estimate_level(s: iDEA.system.System, k: int) -> int:
     return (abs(s.up_count - s.down_count) + 1) ** 2 * s.count * (k + 1)
 
 
-def _solve_on_gpu(H: np.ndarray, k: int) -> tuple:
-    r"""
-    Solves the eigenproblem on the GPU.
-
-    | Args:
-    |     H: np.ndarray, Hamiltonian.
-    |     k: int, Eigenstate to solve for.
-
-    | Returns:
-    |     eigenvalues_gpu, eigenstates_gpu: tuple, Solved eigenvalues and eigenstates.
-    """
-    sigma = 0
-    which = "LA"
-    H_gpu_shifted = csps.csr_matrix(H - sigma * csps.csr_matrix(sps.eye(H.shape[0])))
-    H_gpu_LU = cspsla.splu(H_gpu_shifted)
-    H_gpu_LO = cspsla.LinearOperator(H_gpu_shifted.shape, H_gpu_LU.solve)
-    eigenvalues_gpu, eigenstates_gpu = cspsla.eigsh(H_gpu_LO, k=k, which=which)
-    eigenvalues_gpu = eigenvalues_gpu
-    eigenstates_gpu = eigenstates_gpu
-    eigenvalues_gpu = (1 + eigenvalues_gpu * sigma) / eigenvalues_gpu
-    idx = np.argsort(eigenvalues_gpu)
-    eigenstates_gpu = cnp.transpose(eigenstates_gpu)
-    eigenvalues_gpu = eigenvalues_gpu[idx]
-    eigenstates_gpu = cnp.transpose(eigenstates_gpu[idx])
-    return eigenvalues_gpu, eigenstates_gpu
-
-
 def solve(
-    s: iDEA.system.System, H: np.ndarray = None, k: int = 0, level=None
+    s: iDEA.system.System, H: np.ndarray = None, k: int = 0, level=None, GPU=False
 ) -> iDEA.state.ManyBodyState:
     r"""
     Solves the interacting Schrodinger equation of the given system.
@@ -303,6 +270,7 @@ def solve(
     |     H: np.ndarray, Hamiltonian [If None this will be computed from s]. (default = None)
     |     k: int, Energy state to solve for. (default = 0, the ground-state)
     |     level: int. Max level of excitation to use when solving the Schrodinger equation.
+    |     GPU: bool, Solve on GPU using cupy. If false will use scipy on CPU.
 
     | Returns:
     |     state: iDEA.state.ManyBodyState, Solved state.
@@ -319,13 +287,17 @@ def solve(
         level = _estimate_level(s, k)
 
     # Solve the many-body Schrodinger equation.
-    print("iDEA.methods.interacting.solve: solving eigenproblem...")
-    if os.environ.get("iDEA_GPU") == "True":
-        H_gpu = csps.csr_matrix(H)
-        energies, spaces = _solve_on_gpu(H_gpu, level)
+    if GPU == True:
+        import cupy as cp
+        import cupyx.scipy.sparse as csps
+        import cupyx.scipy.sparse.linalg as cspsla
+        name = cp.cuda.runtime.getDeviceProperties(cp.cuda.Device().id)["name"].decode()
+        print(f"iDEA.methods.interacting.solve: solving eigenproblem on GPU: {name}...")
+        energies, spaces = cspsla.eigsh(csps.csr_matrix(H), k=level, which="SA")
         energies = energies.get()
         spaces = spaces.get()
     else:
+        print("iDEA.methods.interacting.solve: solving eigenproblem on CPU...")
         energies, spaces = spsla.eigsh(H.tocsr(), k=level, which="SA")
 
     # Reshape and normalise the solutions.

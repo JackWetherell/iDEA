@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="iDEA-latest",
-    version="1.0.2",
+    version="1.0.3",
     author="Jack Wetherell",
     author_email="jack.wetherell@gmail.com",
     description="interacting Dynamic Electrons Approach (iDEA)",
@@ -35,6 +35,6 @@ setuptools.setup(
         'autoflake>=1.4.0',
         'build>=0.7.0',
         'twine>=4.0.0',
-        'pytest>=8.4.1'
+        'pytest>=8.3.0'
     ],
 )

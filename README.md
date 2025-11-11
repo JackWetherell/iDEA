@@ -135,7 +135,7 @@ scipy >= "1.8.0"
 matplotlib >= "3.5.1"
 jupyterlab >= "3.3.2"
 tqdm >= "4.64.0"
-pytest >= "8.4.1"
+pytest >= "8.3.0"
 ```
 
 <img src="docs/logos.png" alt="" width="200"/>
