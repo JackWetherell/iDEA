@@ -1,3 +1,4 @@
 poetry.lock
 iDEA/__pycache__/
 iDEA/methods/__pycache__/
+*.egg-info/
