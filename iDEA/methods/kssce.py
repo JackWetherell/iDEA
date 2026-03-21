@@ -151,9 +151,9 @@ def sce_potential_operator(
     r"""
     Compute the SCE potential operator V_SCE, which is diag(v_sce(x)).
 
-    Interpolate v'_sce(x) \sum_i w'(|x-f_i|) and integrate to get the potential v_sce(x).
+    Interpolate v'_sce(x) = sum_i w'(\|x-f_i\|) and integrate to get the potential v_sce(x).
 
-    The derivative v''_sce(x) is \sum_i sign(x-f_i) w''(|x-f_i|) (1-f_i'(x)).
+    The derivative v''_sce(x) is sum_i sign(x-f_i) w''(\|x-f_i\|) (1-f_i'(x)).
 
     f_i'(x) is given by n(x)/n(f(x)) from n(x) dx = n(f(x)) df(x)
 

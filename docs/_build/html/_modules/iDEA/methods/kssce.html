@@ -1,0 +1,518 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iDEA.methods.kssce &mdash; iDEA 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            iDEA
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">iDEA</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">iDEA</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../methods.html">iDEA.methods</a></li>
+      <li class="breadcrumb-item active">iDEA.methods.kssce</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for iDEA.methods.kssce</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Contains all Strictly Correlated Electrons functions for use in Kohn-Sham Strictly-Correlated Electrons.</span>
+
+<span class="sd">References:</span>
+<span class="sd">1. F. Malet and P. Gori-Giorgi, Strong correlation in Kohn-Sham density functional theory, Phys. Rev. Lett. 109, 246402 (2012). DOI: [10.1103/PhysRevLett.109.246402](https://dx.doi.org/10.1103/PhysRevLett.109.246402)</span>
+<span class="sd">2. F. Malet, A. Mirtschink, J. C. Cremon, S. M. Reimann, and P. Gori-Giorgi. Kohn-Sham density functional theory for quantum wires in arbitrary correlation regimes. Phys. Rev. B 87, 115146 (2013) DOI: [10.1103/PhysRevB.87.115146](http://dx.doi.org/10.1103/PhysRevB.87.115146)</span>
+<span class="sd">3. A. Mirtschink, M. Seidl, and P. Gori-Giorgi. Derivative discontinuity in the strong-interaction limit of density functional theory. Phys. Rev. Lett.  111, 126402 (2013) DOI: [10.1103/PhysRevLett.111.126402](http://dx.doi.org/10.1103/PhysRevLett.111.126402)</span>
+<span class="sd">4. F. Malet, A. Mirtschink, K. J. H. Giesbertz, L. O. Wagner, and P. Gori-Giorgi. Exchange-correlation functionals from the strongly-interacting limit of DFT: Applications to model chemical systems. Phys. Chem. Chem. Phys. 16, 14551 (2014) DOI: [10.1039/c4cp00407h](http://dx.doi.org/10.1039/c4cp00407h)</span>
+<span class="sd">5. A. Marie, D. P. Kooi, J. Grossi, M. Seidl, Z. Musslimani, K.J.H. Giesbertz, P. Gori-Giorgi. Real space Mott-Anderson electron localization with long-range interactions. Physical Review Research 4, 043192 (2022) DOI: [10.1103/PhysRevResearch.4.043192](https://dx.doi.org/10.1103/PhysRevResearch.4.043192)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">PPoly</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">iDEA.system</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">iDEA.state</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">iDEA.observables</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">iDEA.methods.non_interacting</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+
+<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;kssce&quot;</span>
+
+<span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;interp_n&quot;</span><span class="p">:</span> <span class="s2">&quot;cubic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;interp_invNe&quot;</span><span class="p">:</span> <span class="s2">&quot;hermite_cubic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;interp_vsce&quot;</span><span class="p">:</span> <span class="s2">&quot;cubic&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">kinetic_energy_operator</span> <span class="o">=</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">non_interacting</span><span class="o">.</span><span class="n">kinetic_energy_operator</span>
+<span class="n">external_potential_operator</span> <span class="o">=</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">non_interacting</span><span class="o">.</span><span class="n">external_potential_operator</span>
+<span class="n">propagate_ni</span> <span class="o">=</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">non_interacting</span><span class="o">.</span><span class="n">propagate</span>
+<span class="n">solve_ni</span> <span class="o">=</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">non_interacting</span><span class="o">.</span><span class="n">solve</span>
+
+
+<div class="viewcode-block" id="interpolate_n">
+<a class="viewcode-back" href="../../../iDEA.methods.html#iDEA.methods.kssce.interpolate_n">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">interpolate_n</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">interp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cubic&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PPoly</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Obtain n(x) as an interpolatant</span>
+
+<span class="sd">    Ne(x) needs to be obtained via integration, so we need a method that supports antiderivatives.</span>
+<span class="sd">    We do not have the derivative of n(x), so we cannot use the Hermite cubic spline.</span>
+
+<span class="sd">    | Args:</span>
+<span class="sd">    |     x: np.ndarray, x-coordinates.</span>
+<span class="sd">    |     n: np.ndarray, Charge density.</span>
+<span class="sd">    |     interp: string, Interpolation method. (default = cubic)</span>
+<span class="sd">    | Returns:</span>
+<span class="sd">    |     n(x): PPoly, Interpolant of n(x).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">interp</span> <span class="o">==</span> <span class="s2">&quot;cubic&quot;</span><span class="p">:</span>
+        <span class="c1"># Cubic spline interpolation</span>
+        <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">CubicSpline</span><span class="p">(</span>
+            <span class="n">x</span><span class="p">,</span>
+            <span class="n">n</span><span class="p">,</span>
+            <span class="n">bc_type</span><span class="o">=</span><span class="s2">&quot;clamped&quot;</span><span class="p">,</span>  <span class="c1"># First derivative on both ends is zero</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">interp</span> <span class="o">==</span> <span class="s2">&quot;akima&quot;</span><span class="p">:</span>
+        <span class="c1"># Akima interpolation</span>
+        <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">Akima1DInterpolator</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">interp</span> <span class="o">==</span> <span class="s2">&quot;pchip&quot;</span><span class="p">:</span>
+        <span class="c1"># Piecewise cubic Hermite interpolation</span>
+        <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">PchipInterpolator</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Interpolation method not recognized.&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="interpolate_invNe">
+<a class="viewcode-back" href="../../../iDEA.methods.html#iDEA.methods.kssce.interpolate_invNe">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">interpolate_invNe</span><span class="p">(</span>
+    <span class="n">n</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Ne</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">interp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cubic&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PPoly</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Obtain x(Ne)</span>
+
+<span class="sd">    This is done by interpolation with Ne as the independent variable and x as the dependent variable.</span>
+
+<span class="sd">    We have a dx/dNe(Ne) = 1/(n(Neinv(Ne))), so we can use the Hermite cubic spline.</span>
+
+<span class="sd">    This would be nicer to do by an inversion of Ne(x), but scipy does not support doing that at multiple points at the same time.</span>
+
+<span class="sd">    | Args:</span>
+<span class="sd">    |     n: np.ndarray, Charge density.</span>
+<span class="sd">    |     Ne: np.ndarray, Cumulant of the charge density.</span>
+<span class="sd">    |     x: np.ndarray, x-coordinates.</span>
+<span class="sd">    |     interp: string, Interpolation method. (default = cubic)</span>
+<span class="sd">    | Returns:</span>
+<span class="sd">    |     invNe: PPoly, gives x(Ne).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">interp</span> <span class="o">==</span> <span class="s2">&quot;hermite_cubic&quot;</span><span class="p">:</span>
+        <span class="c1"># Hermite cubic spline interpolation with derivative</span>
+        <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">CubicHermiteSpline</span><span class="p">(</span>
+            <span class="n">Ne</span><span class="p">,</span>
+            <span class="n">x</span><span class="p">,</span>
+            <span class="mi">1</span> <span class="o">/</span> <span class="n">n</span><span class="p">,</span>  <span class="c1"># Derivative of x(Ne) = 1/n(Neinv(Ne))</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">interp</span> <span class="o">==</span> <span class="s2">&quot;cubic&quot;</span><span class="p">:</span>
+        <span class="c1"># Cubic spline interpolation</span>
+        <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">CubicSpline</span><span class="p">(</span>
+            <span class="n">Ne</span><span class="p">,</span>
+            <span class="n">x</span><span class="p">,</span>
+            <span class="n">bc_type</span><span class="o">=</span><span class="s2">&quot;not-a-knot&quot;</span><span class="p">,</span>  <span class="c1"># Derivative diverges at both ends</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">interp</span> <span class="o">==</span> <span class="s2">&quot;akima&quot;</span><span class="p">:</span>
+        <span class="c1"># Akima interpolation</span>
+        <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">Akima1DInterpolator</span><span class="p">(</span>
+            <span class="n">Ne</span><span class="p">,</span>
+            <span class="n">x</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">interp</span> <span class="o">==</span> <span class="s2">&quot;pchip&quot;</span><span class="p">:</span>
+        <span class="c1"># Piecewise cubic Hermite interpolation</span>
+        <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">PchipInterpolator</span><span class="p">(</span>
+            <span class="n">Ne</span><span class="p">,</span>
+            <span class="n">x</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Interpolation method not recognized.&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="compute_comotion_functions">
+<a class="viewcode-back" href="../../../iDEA.methods.html#iDEA.methods.kssce.compute_comotion_functions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_comotion_functions</span><span class="p">(</span>
+    <span class="n">n</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Ne</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">interp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hermite_cubic&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute all comotion functions at once.</span>
+
+<span class="sd">    | Args:</span>
+<span class="sd">    |     Ne: np.ndarray, Cumulant of the co-motion function.</span>
+<span class="sd">    |     x: np.ndarray, Coordinates of the co-motion function.</span>
+<span class="sd">    |     N: int, Number of particles.</span>
+<span class="sd">    | Returns:</span>
+<span class="sd">    |     f: np.ndarray, Co-motion functions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Interpolate inverse of the cumulant</span>
+    <span class="n">invNe_interp</span> <span class="o">=</span> <span class="n">interpolate_invNe</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">Ne</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="n">interp</span><span class="p">)</span>
+    <span class="c1"># Electron indices</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">invNe_interp</span><span class="p">(</span>
+        <span class="n">Ne</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="o">+</span> <span class="n">i</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="o">-</span> <span class="mi">1</span>
+        <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">heaviside</span><span class="p">(</span><span class="n">Ne</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">N</span> <span class="o">+</span> <span class="n">i</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="sce_potential_operator">
+<a class="viewcode-back" href="../../../iDEA.methods.html#iDEA.methods.kssce.sce_potential_operator">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sce_potential_operator</span><span class="p">(</span>
+    <span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span>
+    <span class="n">n</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">method_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_params</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the SCE potential operator V_SCE, which is diag(v_sce(x)).</span>
+
+<span class="sd">    Interpolate v&#39;_sce(x) = sum_i w&#39;(\|x-f_i\|) and integrate to get the potential v_sce(x).</span>
+
+<span class="sd">    The derivative v&#39;&#39;_sce(x) is sum_i sign(x-f_i) w&#39;&#39;(\|x-f_i\|) (1-f_i&#39;(x)).</span>
+
+<span class="sd">    f_i&#39;(x) is given by n(x)/n(f(x)) from n(x) dx = n(f(x)) df(x)</span>
+
+<span class="sd">    | Args:</span>
+<span class="sd">    |     s: iDEA.system.System, System object.</span>
+<span class="sd">    |     n: np.ndarray, Charge density.</span>
+<span class="sd">    |     method_params: Dict[str, str], Dictionary of method parameters.</span>
+<span class="sd">    | Returns:</span>
+<span class="sd">    |     V_SCE: np.ndarray, SCE potential energy operator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Interpolate the charge density</span>
+        <span class="n">n_interp</span> <span class="o">=</span> <span class="n">interpolate_n</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="n">method_params</span><span class="p">[</span><span class="s2">&quot;interp_n&quot;</span><span class="p">])</span>
+        <span class="c1"># Compute the cumulant of the charge density</span>
+        <span class="n">Ne</span> <span class="o">=</span> <span class="n">n_interp</span><span class="o">.</span><span class="n">antiderivative</span><span class="p">()(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="c1"># Compute co-motion functions</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">compute_comotion_functions</span><span class="p">(</span>
+            <span class="n">n</span><span class="p">,</span> <span class="n">Ne</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="n">method_params</span><span class="p">[</span><span class="s2">&quot;interp_invNe&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Compute the derivative of the SCE potential</span>
+
+        <span class="c1"># Compute the interaction between the first electron and the rest</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">interaction</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+        <span class="c1"># Compute v_sce&#39;(x) = \sum_i w&#39;(|x-f_i|)</span>
+        <span class="n">v_scep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">dinteraction</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">:]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>  <span class="c1"># axis=0 sums over the electrons</span>
+
+        <span class="c1"># Compute w&#39;&#39;_i(x) = w&#39;&#39;(|x-f_i|)</span>
+        <span class="n">wpp_i</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">ddinteraction</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+        <span class="c1"># Compute f_i&#39;(x) = n(x)/n(f(x))</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="n">n</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">/</span> <span class="n">interpolate_n</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="n">method_params</span><span class="p">[</span><span class="s2">&quot;interp_n&quot;</span><span class="p">])(</span><span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+        <span class="c1"># Compute v_sce&#39;&#39;(x) = \sum_i sign(x-f_i) w&#39;&#39;(|x-f_i|) (1-f_i&#39;(x))</span>
+        <span class="n">v_scepp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">wpp_i</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fp</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># v_sce = -np.cumsum(np.sum(dw, axis=0))*s.dx</span>
+
+        <span class="k">if</span> <span class="n">method_params</span><span class="p">[</span><span class="s2">&quot;interp_vsce&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;hermite_cubic&quot;</span><span class="p">:</span>
+            <span class="c1"># Hermite cubic spline interpolation with derivative</span>
+            <span class="n">v_sce</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">CubicHermiteSpline</span><span class="p">(</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">v_scep</span><span class="p">,</span> <span class="n">v_scepp</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">antiderivative</span><span class="p">()(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method_params</span><span class="p">[</span><span class="s2">&quot;interp_vsce&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;akima&quot;</span><span class="p">:</span>
+            <span class="c1"># Akima interpolation</span>
+            <span class="n">v_sce</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">Akima1DInterpolator</span><span class="p">(</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">v_scepp</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">antiderivative</span><span class="p">()(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method_params</span><span class="p">[</span><span class="s2">&quot;interp_vsce&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;pchip&quot;</span><span class="p">:</span>
+            <span class="c1"># Piecewise cubic Hermite interpolation</span>
+            <span class="n">v_sce</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">PchipInterpolator</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">v_scepp</span><span class="p">)</span><span class="o">.</span><span class="n">antiderivative</span><span class="p">()(</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">x</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method_params</span><span class="p">[</span><span class="s2">&quot;interp_vsce&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;cubic&quot;</span><span class="p">:</span>
+            <span class="c1"># Cubic spline interpolation</span>
+            <span class="n">v_sce</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">CubicSpline</span><span class="p">(</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">v_scepp</span><span class="p">,</span> <span class="n">bc_type</span><span class="o">=</span><span class="s2">&quot;not-a-knot&quot;</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">antiderivative</span><span class="p">()(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="c1"># Compute the SCE energy</span>
+        <span class="n">E_sce</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">interpolate_n</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Fix the arbitrary potential in v_sce by demanding E_sce = int v_sce(x) n(x) dx</span>
+        <span class="n">v_sce</span> <span class="o">=</span> <span class="n">v_sce</span> <span class="o">+</span> <span class="n">E_sce</span> <span class="o">/</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">dx</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">v_sce</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span> <span class="o">/</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">dx</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">v_sce</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="sce_energy">
+<a class="viewcode-back" href="../../../iDEA.methods.html#iDEA.methods.kssce.sce_energy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sce_energy</span><span class="p">(</span>
+    <span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span>
+    <span class="n">n</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">method_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_params</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the SCE energy.</span>
+
+<span class="sd">    | Args:</span>
+<span class="sd">    |     s: iDEA.system.System, System object.</span>
+<span class="sd">    |     n: np.ndarray, Charge density.</span>
+<span class="sd">    |     method_params: Dict[str, str], Dictionary of method parameters.</span>
+<span class="sd">    | Returns:</span>
+<span class="sd">    |     E: float, SCE energy.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Interpolate the charge density and integrate to get the cumulant Ne(x)</span>
+    <span class="n">Ne</span> <span class="o">=</span> <span class="n">interpolate_n</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">method_params</span><span class="p">[</span><span class="s2">&quot;interp_n&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">antiderivative</span><span class="p">()(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="c1"># Compute co-motion functions</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">compute_comotion_functions</span><span class="p">(</span>
+        <span class="n">n</span><span class="p">,</span> <span class="n">Ne</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="n">method_params</span><span class="p">[</span><span class="s2">&quot;interp_invNe&quot;</span><span class="p">]</span>
+    <span class="p">)</span>  <span class="c1"># +s.dx/2</span>
+
+    <span class="c1"># Compute the interaction between the first electron and the rest</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">interaction</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="mi">1</span>
+        <span class="o">/</span> <span class="mi">2</span>
+        <span class="o">*</span> <span class="n">interpolate_n</span><span class="p">(</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">method_params</span><span class="p">[</span><span class="s2">&quot;interp_n&quot;</span><span class="p">]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="hamiltonian">
+<a class="viewcode-back" href="../../../iDEA.methods.html#iDEA.methods.kssce.hamiltonian">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hamiltonian</span><span class="p">(</span>
+    <span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span>
+    <span class="n">up_n</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">down_n</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">up_p</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">down_p</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">K</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">Vext</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">method_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_params</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the Hamiltonian from the kinetic and potential terms.</span>
+
+<span class="sd">    | Args:</span>
+<span class="sd">    |     s: iDEA.system.System, System object.</span>
+<span class="sd">    |     up_n: np.ndarray, Charge density of up electrons.</span>
+<span class="sd">    |     down_n: np.ndarray, Charge density of down electrons.</span>
+<span class="sd">    |     up_p: np.ndarray, Charge density matrix of up electrons.</span>
+<span class="sd">    |     down_p: np.ndarray, Charge density matrix of down electrons.</span>
+<span class="sd">    |     K: np.ndarray, Single-particle kinetic energy operator [If None this will be computed from s]. (default = None)</span>
+<span class="sd">    |     Vext: np.ndarray, Potential energy operator [If None this will be computed from s]. (default = None)</span>
+<span class="sd">    |     default_params: Dict[str, str], Dictionary of method parameters.</span>
+<span class="sd">    | Returns:</span>
+<span class="sd">    |     H: np.ndarray, Hamiltonian, up Hamiltonian, down Hamiltonian.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">K</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">kinetic_energy_operator</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">Vext</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">Vext</span> <span class="o">=</span> <span class="n">external_potential_operator</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">Vsce</span> <span class="o">=</span> <span class="n">sce_potential_operator</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">up_n</span> <span class="o">+</span> <span class="n">down_n</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span>
+    <span class="n">H</span> <span class="o">=</span> <span class="n">K</span> <span class="o">+</span> <span class="n">Vext</span> <span class="o">+</span> <span class="n">Vsce</span>
+    <span class="k">return</span> <span class="n">H</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">H</span></div>
+
+
+
+<div class="viewcode-block" id="total_energy">
+<a class="viewcode-back" href="../../../iDEA.methods.html#iDEA.methods.kssce.total_energy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">total_energy</span><span class="p">(</span>
+    <span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span>
+    <span class="n">state</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyState</span><span class="p">,</span>
+    <span class="n">method_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_params</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the total energy.</span>
+
+<span class="sd">    | Args:</span>
+<span class="sd">    |     s: iDEA.system.System, System object.</span>
+<span class="sd">    |     state: iDEA.state.SingleBodyState, State. (default = None)</span>
+<span class="sd">    |     method_params: Dict[str, str], Dictionary of method parameters.</span>
+<span class="sd">    | Returns:</span>
+<span class="sd">    |     E: float, Total energy.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">E</span> <span class="o">=</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">observables</span><span class="o">.</span><span class="n">single_particle_energy</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">observables</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+    <span class="n">E</span> <span class="o">+=</span> <span class="n">sce_energy</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">E</span></div>
+
+
+
+<div class="viewcode-block" id="solve">
+<a class="viewcode-back" href="../../../iDEA.methods.html#iDEA.methods.kssce.solve">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span>
+    <span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span>
+    <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">restricted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">mixing</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-10</span><span class="p">,</span>
+    <span class="n">initial</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">silent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">method_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_params</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyState</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Solves the Schrodinger equation for the given system.</span>
+
+<span class="sd">    | Args:</span>
+<span class="sd">    |     s: iDEA.system.System, System object.</span>
+<span class="sd">    |     k: int, Energy state to solve for. (default = 0, the ground-state)</span>
+<span class="sd">    |     restricted: bool, Is the calculation restricted (r) on unrestricted (u). (default=False)</span>
+<span class="sd">    |     mixing: float, Mixing parameter. (default = 0.5)</span>
+<span class="sd">    |     tol: float, Tollerance of convergence. (default = 1e-10)</span>
+<span class="sd">    |     initial: tuple. Tuple of initial values used to begin the self-consistency (n, up_n, down_n, p, up_p, down_p). (default = None)</span>
+<span class="sd">    |     silent: bool, Set to true to prevent printing. (default = False)</span>
+<span class="sd">    |     method_params: Dict[str, str], Dictionary of method parameters.</span>
+<span class="sd">    | Returns:</span>
+<span class="sd">    |     state: iDEA.state.SingleBodyState, Solved state.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">solve_ni</span><span class="p">(</span>
+        <span class="n">s</span><span class="p">,</span>
+        <span class="n">partial</span><span class="p">(</span><span class="n">hamiltonian</span><span class="p">,</span> <span class="n">method_params</span><span class="o">=</span><span class="n">method_params</span><span class="p">),</span>
+        <span class="n">k</span><span class="p">,</span>
+        <span class="n">restricted</span><span class="p">,</span>
+        <span class="n">mixing</span><span class="p">,</span>
+        <span class="n">tol</span><span class="p">,</span>
+        <span class="n">initial</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">silent</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="propagate">
+<a class="viewcode-back" href="../../../iDEA.methods.html#iDEA.methods.kssce.propagate">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">propagate</span><span class="p">(</span>
+    <span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span>
+    <span class="n">state</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyState</span><span class="p">,</span>
+    <span class="n">v_ptrb</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">t</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">restricted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">method_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_params</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyEvolution</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Propagate a set of orbitals forward in time due to a dynamic local pertubation.</span>
+
+<span class="sd">    | Args:</span>
+<span class="sd">    |     s: iDEA.system.System, System object.</span>
+<span class="sd">    |     state: iDEA.state.SingleBodyState, State to be propigated.</span>
+<span class="sd">    |     v_ptrb: np.ndarray, Local perturbing potential on the grid of t and x values, indexed as v_ptrb[time,space].</span>
+<span class="sd">    |     t: np.ndarray, Grid of time values.</span>
+<span class="sd">    |     restricted: bool, Is the calculation restricted (r) on unrestricted (u). (default=False)</span>
+<span class="sd">    |     method_params: Dict[str, str], Dictionary of method parameters.</span>
+<span class="sd">    | Returns:</span>
+<span class="sd">    |     evolution: iDEA.state.SingleBodyEvolution, Solved time-dependent evolution.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">propagate_ni</span><span class="p">(</span>
+        <span class="n">s</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">,</span>
+        <span class="n">v_ptrb</span><span class="p">,</span>
+        <span class="n">t</span><span class="p">,</span>
+        <span class="n">partial</span><span class="p">(</span><span class="n">hamiltonian</span><span class="p">,</span> <span class="n">method_params</span><span class="o">=</span><span class="n">method_params</span><span class="p">),</span>
+        <span class="n">restricted</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Jack Wetherell.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
