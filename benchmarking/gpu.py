@@ -39,7 +39,7 @@ def make_qho(N: int) -> iDEA.system.System:
 # Benchmark parameters
 # ---------------------------------------------------------------------------
 
-GRID_SIZES = list(range(50, 501, 50))   # [50, 100, 150, ..., 500]
+GRID_SIZES = list(range(50, 401, 50))   # [50, 100, 150, ..., 500]
 
 cpu_times = []
 cpu_mems  = []
@@ -96,13 +96,13 @@ for N in GRID_SIZES:
     print(f"  N={N}  (Hamiltonian size {N**2}×{N**2})")
     s = make_qho(N)
     cp.get_default_memory_pool().free_all_blocks()
-    free_before, _ = cp.cuda.Device().mem_info()
+    free_before, _ = cp.cuda.Device().mem_info
 
     t0 = time.perf_counter()
     try:
         state = iDEA.methods.interacting.solve(s, k=0, GPU=True)
         t1 = time.perf_counter()
-        free_after, _ = cp.cuda.Device().mem_info()
+        free_after, _ = cp.cuda.Device().mem_info
         gpu_times.append(t1 - t0)
         gpu_mems.append((free_before - free_after) / 1024 ** 3)
         del state
