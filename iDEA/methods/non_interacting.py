@@ -397,6 +397,7 @@ def propagate_step(
     v_ptrb: np.ndarray,
     dt: float,
     restricted: bool,
+    GPU: bool = False,
     **kwargs
 ):
     r"""
@@ -410,6 +411,7 @@ def propagate_step(
     |     v_ptrb: np.ndarray, Local perturbing potential on the grid of t and x values, indexed as v_ptrb[time,space].
     |     dt: float, Timestep.
     |     restricted: bool, Is the calculation restricted (r) on unrestricted (u). (default=False)
+    |     GPU: bool, Propagate on GPU using cupy. If false will use scipy on CPU. (default = False)
 
     | Returns:
     |     evolution: iDEA.state.SingleBodyEvolution, Time-dependent evolution solved at time index j from j-1.
@@ -423,30 +425,69 @@ def propagate_step(
     H, up_H, down_H = hamiltonian_function(
         s, up_n[0, ...], down_n[0, ...], up_p[0, ...], down_p[0, ...], **kwargs
     )
-    H = sps.csc_matrix(H)
-    up_H = sps.csc_matrix(up_H)
-    down_H = sps.csc_matrix(down_H)
-    Vptrb = sps.diags(v_ptrb[j, :]).tocsc()
 
     # Apply restriction.
     if restricted:
         up_H = H
         down_H = H
 
-    for i in range(evolution.up.occupied.shape[0]):
-        up_O = -1.0j * (up_H + Vptrb) * dt
-        evolution.up.td_orbitals[j, :, i] = spsla.expm_multiply(
-            up_O, evolution.up.td_orbitals[j - 1, :, i]
+    Vptrb_diag = v_ptrb[j, :]
+
+    if GPU:
+        import cupy as cp
+
+        # Convert Hamiltonians to dense CuPy arrays (single-particle H is N×N).
+        up_H_gpu = cp.asarray(
+            up_H.toarray() if sps.issparse(up_H) else np.asarray(up_H), dtype=cp.complex128
         )
-        norm = npla.norm(evolution.up.td_orbitals[j, :, i]) * np.sqrt(s.dx)
-        evolution.up.td_orbitals[j, :, i] /= norm
-    for i in range(evolution.down.occupied.shape[0]):
-        down_O = -1.0j * (down_H + Vptrb) * dt
-        evolution.down.td_orbitals[j, :, i] = spsla.expm_multiply(
-            down_O, evolution.down.td_orbitals[j - 1, :, i]
+        down_H_gpu = cp.asarray(
+            down_H.toarray() if sps.issparse(down_H) else np.asarray(down_H), dtype=cp.complex128
         )
-        norm = npla.norm(evolution.down.td_orbitals[j, :, i]) * np.sqrt(s.dx)
-        evolution.down.td_orbitals[j, :, i] /= norm
+        Vptrb_gpu = cp.diag(cp.asarray(Vptrb_diag, dtype=cp.complex128))
+
+        # Diagonalise H + Vptrb once per spin channel; then apply exp(-i dt e) to each orbital.
+        # For Hermitian O: exp(-i dt O) φ = V diag(exp(-i dt e)) V† φ
+        O_up = up_H_gpu + Vptrb_gpu
+        e_up, V_up = cp.linalg.eigh(O_up)
+        exp_diag_up = cp.exp(-1.0j * dt * e_up)
+        Vt_up = V_up.conj().T
+
+        for i in range(evolution.up.occupied.shape[0]):
+            psi = cp.asarray(evolution.up.td_orbitals[j - 1, :, i].astype(complex))
+            psi_new = V_up @ (exp_diag_up * (Vt_up @ psi))
+            norm = cp.linalg.norm(psi_new) * np.sqrt(s.dx)
+            evolution.up.td_orbitals[j, :, i] = (psi_new / norm).get()
+
+        O_down = down_H_gpu + Vptrb_gpu
+        e_down, V_down = cp.linalg.eigh(O_down)
+        exp_diag_down = cp.exp(-1.0j * dt * e_down)
+        Vt_down = V_down.conj().T
+
+        for i in range(evolution.down.occupied.shape[0]):
+            psi = cp.asarray(evolution.down.td_orbitals[j - 1, :, i].astype(complex))
+            psi_new = V_down @ (exp_diag_down * (Vt_down @ psi))
+            norm = cp.linalg.norm(psi_new) * np.sqrt(s.dx)
+            evolution.down.td_orbitals[j, :, i] = (psi_new / norm).get()
+    else:
+        H = sps.csc_matrix(H)
+        up_H = sps.csc_matrix(up_H)
+        down_H = sps.csc_matrix(down_H)
+        Vptrb = sps.diags(Vptrb_diag).tocsc()
+
+        for i in range(evolution.up.occupied.shape[0]):
+            up_O = -1.0j * (up_H + Vptrb) * dt
+            evolution.up.td_orbitals[j, :, i] = spsla.expm_multiply(
+                up_O, evolution.up.td_orbitals[j - 1, :, i]
+            )
+            norm = npla.norm(evolution.up.td_orbitals[j, :, i]) * np.sqrt(s.dx)
+            evolution.up.td_orbitals[j, :, i] /= norm
+        for i in range(evolution.down.occupied.shape[0]):
+            down_O = -1.0j * (down_H + Vptrb) * dt
+            evolution.down.td_orbitals[j, :, i] = spsla.expm_multiply(
+                down_O, evolution.down.td_orbitals[j - 1, :, i]
+            )
+            norm = npla.norm(evolution.down.td_orbitals[j, :, i]) * np.sqrt(s.dx)
+            evolution.down.td_orbitals[j, :, i] /= norm
 
     return evolution
 
@@ -459,6 +500,7 @@ def propagate(
     hamiltonian_function: Callable = None,
     restricted: bool = False,
     name: str = "non_interacting",
+    GPU: bool = False,
     **kwargs
 ) -> iDEA.state.SingleBodyEvolution:
     r"""
@@ -472,6 +514,7 @@ def propagate(
     |    hamiltonian_function: Callable, Hamiltonian function [If None this will be the non_interacting function]. (default = None)
     |    restricted: bool, Is the calculation restricted (r) on unrestricted (u). (default=False)
     |    name: str, Name of method. (default = "non_interacting")
+    |    GPU: bool, Propagate on GPU using cupy. If false will use scipy on CPU. (default = False)
 
     | Returns:
     |    evolution: iDEA.state.SingleBodyEvolution, Solved time-dependent evolution.
@@ -510,13 +553,23 @@ def propagate(
     evolution.v_ptrb = v_ptrb
     evolution.t = t
 
+    if GPU:
+        import cupy as cp
+        device_name = cp.cuda.runtime.getDeviceProperties(
+            cp.cuda.Device().id
+        )["name"].decode()
+        print(
+            f"iDEA.methods.{name}.propagate: propagating state on GPU: {device_name}..."
+        )
+
     # Propagate.
     for j, ti in enumerate(
         tqdm(t, desc="iDEA.methods.{}.propagate: propagating state".format(name))
     ):
         if j != 0:
             evolution = propagate_step(
-                s, evolution, j, hamiltonian_function, v_ptrb, dt, restricted, **kwargs
+                s, evolution, j, hamiltonian_function, v_ptrb, dt, restricted,
+                GPU=GPU, **kwargs
             )
 
     return evolution

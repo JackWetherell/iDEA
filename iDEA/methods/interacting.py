@@ -149,6 +149,63 @@ def hamiltonian(s: iDEA.system.System, GPU: bool = False):
     return H
 
 
+def _gpu_expm_action(A, v, c, m_max=30):
+    r"""
+    Compute exp(c * A) @ v using the Arnoldi/Krylov iteration on GPU (CuPy).
+
+    Builds a Krylov basis via sparse matrix-vector products on GPU, then computes
+    the action of the matrix exponential in the resulting low-dimensional subspace.
+    The small Hessenberg matrix exponential is computed via scipy on the CPU and
+    the result is projected back to the full space on GPU.
+
+    | Args:
+    |     A: cupyx.scipy.sparse.csr_matrix, Sparse matrix on GPU.
+    |     v: cupy.ndarray, Vector on GPU.
+    |     c: complex, Scalar coefficient (exp(c * A) is computed).
+    |     m_max: int, Maximum Krylov subspace dimension. (default = 30)
+
+    | Returns:
+    |     result: cupy.ndarray, Approximation of exp(c * A) @ v on GPU.
+    """
+    import cupy as cp
+    import scipy.linalg as spla
+
+    n = v.shape[0]
+    m = min(m_max, n)
+
+    beta = float(cp.linalg.norm(v))
+    if beta < 1e-15:
+        return v.copy()
+
+    V = cp.zeros((n, m + 1), dtype=cp.complex128)
+    H = cp.zeros((m + 1, m), dtype=cp.complex128)
+    V[:, 0] = v / beta
+
+    actual_m = m
+    for j in range(m):
+        # Sparse matrix-vector product on GPU.
+        w = A @ V[:, j]
+        # Vectorised modified Gram-Schmidt orthogonalisation.
+        h_col = V[:, : j + 1].conj().T @ w
+        H[: j + 1, j] = h_col
+        w = w - V[:, : j + 1] @ h_col
+        nrm = float(cp.linalg.norm(w))
+        H[j + 1, j] = nrm
+        if nrm < 1e-12:
+            actual_m = j + 1
+            break
+        V[:, j + 1] = w / nrm
+
+    # Compute exp of the small Hessenberg matrix on CPU, then transfer to GPU.
+    H_small = (c * H[:actual_m, :actual_m]).get()
+    exp_H_gpu = cp.asarray(spla.expm(H_small))
+
+    e1 = cp.zeros(actual_m, dtype=cp.complex128)
+    e1[0] = 1.0
+
+    return beta * (V[:, :actual_m] @ (exp_H_gpu @ e1))
+
+
 def total_energy(s: iDEA.system.System, state: iDEA.state.ManyBodyState) -> float:
     r"""
     Compute the total energy of an interacting state.
@@ -359,6 +416,7 @@ def propagate_step(
     j: int,
     dt: float,
     objs: tuple,
+    GPU: bool = False,
 ) -> iDEA.state.ManyBodyEvolution:
     r"""
     Propagate a many body state forward in time, one time-step, due to a local pertubation.
@@ -371,24 +429,49 @@ def propagate_step(
     |     j: int, Time index.
     |     dt: float, Time-step.
     |     objs: tuple. Tuple of objects needed to construct many-body operator (I, generate_terms).
+    |     GPU: bool, Propagate on GPU using cupy. If false will use scipy on CPU. (default = False)
 
     | Returns:
     |     evolution: iDEA.state.ManyBodyEvolution, time-dependent evolution one time-step evolved.
     """
-    # Construct the pertubation potential.
-    vptrb = sps.dia_matrix(np.diag(v_ptrb[j, :]))
-    terms = objs[1](sps.kron, vptrb, objs[0], s.count)
-    Vptrb = sps.dia_matrix((s.x.shape[0] ** s.count,) * 2, dtype=float)
-    for term in terms:
-        Vptrb += term
+    size = s.x.shape[0] ** s.count
+    if GPU:
+        import cupy as cp
+        import cupyx.scipy.sparse as csps
 
-    # Contruct the perturbed Hamiltonian.
-    Hp = H + Vptrb
+        # Construct the perturbation potential on GPU.
+        vptrb = csps.diags(cp.asarray(v_ptrb[j, :]), format="csr")
+        terms = objs[1](csps.kron, vptrb, objs[0], s.count)
+        Vptrb = csps.csr_matrix((size, size), dtype=float)
+        for term in terms:
+            Vptrb = Vptrb + term
 
-    # Evolve.
-    wavefunction = evolution.td_space[j - 1, ...].reshape((s.x.shape[0] ** s.count))
-    wavefunction = spsla.expm_multiply(-1.0j * dt * Hp, wavefunction)
-    evolution.td_space[j, ...] = wavefunction.reshape((s.x.shape[0],) * s.count)
+        # Construct the perturbed Hamiltonian on GPU.
+        Hp = H + Vptrb
+
+        # Evolve using Krylov-based matrix exponential action on GPU.
+        wavefunction = cp.asarray(
+            evolution.td_space[j - 1, ...].reshape(size).astype(complex)
+        )
+        wavefunction = _gpu_expm_action(Hp, wavefunction, -1.0j * dt)
+        evolution.td_space[j, ...] = wavefunction.get().reshape(
+            (s.x.shape[0],) * s.count
+        )
+    else:
+        # Construct the pertubation potential.
+        vptrb = sps.dia_matrix(np.diag(v_ptrb[j, :]))
+        terms = objs[1](sps.kron, vptrb, objs[0], s.count)
+        Vptrb = sps.dia_matrix((size,) * 2, dtype=float)
+        for term in terms:
+            Vptrb += term
+
+        # Contruct the perturbed Hamiltonian.
+        Hp = H + Vptrb
+
+        # Evolve.
+        wavefunction = evolution.td_space[j - 1, ...].reshape(size)
+        wavefunction = spsla.expm_multiply(-1.0j * dt * Hp, wavefunction)
+        evolution.td_space[j, ...] = wavefunction.reshape((s.x.shape[0],) * s.count)
 
     return evolution
 
@@ -399,6 +482,7 @@ def propagate(
     v_ptrb: np.ndarray,
     t: np.ndarray,
     H: sps.dia_matrix = None,
+    GPU: bool = False,
 ) -> iDEA.state.ManyBodyEvolution:
     r"""
     Propagate a many body state forward in time due to a local pertubation.
@@ -409,13 +493,14 @@ def propagate(
     |     v_ptrb: np.ndarray, Local perturbing potential on the grid of t and x values, indexed as v_ptrb[time,space].
     |     t: np.ndarray, Grid of time values.
     |     H: np.ndarray, Static Hamiltonian [If None this will be computed from s]. (default = None)
+    |     GPU: bool, Propagate on GPU using cupy. If false will use scipy on CPU. (default = False)
 
     | Returns:
     |     evolution: iDEA.state.ManyBodyEvolution, Solved time-dependent evolution.
     """
     # Construct the unperturbed Hamiltonian.
     if H is None:
-        H = hamiltonian(s)
+        H = hamiltonian(s, GPU=GPU)
 
     # Compute timestep.
     dt = t[1] - t[0]
@@ -426,12 +511,26 @@ def propagate(
     evolution.td_space[0, ...] = copy.deepcopy(evolution.space)
 
     # Construct objects needed to update potential.
-    I = sps.identity(s.x.shape[0], format="dia")
+    if GPU:
+        import cupy as cp
+        import cupyx.scipy.sparse as csps
+        I = csps.identity(s.x.shape[0], format="csr")
+        fmt = "csr"
+        device_name = cp.cuda.runtime.getDeviceProperties(
+            cp.cuda.Device().id
+        )["name"].decode()
+        print(
+            f"iDEA.methods.interacting.propagate: propagating state on GPU: {device_name}..."
+        )
+    else:
+        I = sps.identity(s.x.shape[0], format="dia")
+        fmt = "dia"
+
     partial_operators = lambda A, B, k, n: (
         A if i + k == n - 1 else B for i in range(n)
     )
     fold_partial_operators = lambda f, po: functools.reduce(
-        lambda acc, val: f(val, acc, format="dia"), po
+        lambda acc, val: f(val, acc, format=fmt), po
     )
     generate_terms = lambda f, A, B, n: (
         fold_partial_operators(f, partial_operators(A, B, k, n)) for k in range(n)
@@ -443,7 +542,7 @@ def propagate(
         tqdm(t, desc="iDEA.methods.interacting.propagate: propagating state")
     ):
         if j != 0:
-            propagate_step(s, evolution, H, v_ptrb, j, dt, objs)
+            propagate_step(s, evolution, H, v_ptrb, j, dt, objs, GPU=GPU)
 
     # Populate the many-body time-dependent evolution.
     evolution.v_ptrb = v_ptrb

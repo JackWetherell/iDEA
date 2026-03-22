@@ -132,6 +132,7 @@ def propagate(
     t: np.ndarray,
     hamiltonian_function: Callable = None,
     restricted: bool = False,
+    GPU: bool = False,
 ) -> iDEA.state.SingleBodyEvolution:
     r"""
     Propagate a set of orbitals forward in time due to a dynamic local pertubation.
@@ -143,10 +144,11 @@ def propagate(
     |     t: np.ndarray, Grid of time values.
     |     hamiltonian_function: Callable, Hamiltonian function [If None this will be the non_interacting function]. (default = None)
     |     restricted: bool, Is the calculation restricted (r) on unrestricted (u). (default=False)
+    |     GPU: bool, Propagate on GPU using cupy. If false will use scipy on CPU. (default = False)
 
     | Returns:
     |     evolution: iDEA.state.SingleBodyEvolution, Solved time-dependent evolution.
     """
     return iDEA.methods.non_interacting.propagate(
-        s, state, v_ptrb, t, hamiltonian, restricted, name
+        s, state, v_ptrb, t, hamiltonian, restricted, name, GPU=GPU
     )

@@ -363,6 +363,7 @@ def propagate(
     t: np.ndarray,
     restricted: bool = False,
     method_params: Dict[str, str] = default_params,
+    GPU: bool = False,
 ) -> iDEA.state.SingleBodyEvolution:
     r"""
     Propagate a set of orbitals forward in time due to a dynamic local pertubation.
@@ -374,6 +375,7 @@ def propagate(
     |     t: np.ndarray, Grid of time values.
     |     restricted: bool, Is the calculation restricted (r) on unrestricted (u). (default=False)
     |     method_params: Dict[str, str], Dictionary of method parameters.
+    |     GPU: bool, Propagate on GPU using cupy. If false will use scipy on CPU. (default = False)
     | Returns:
     |     evolution: iDEA.state.SingleBodyEvolution, Solved time-dependent evolution.
     """
@@ -385,4 +387,5 @@ def propagate(
         partial(hamiltonian, method_params=method_params),
         restricted,
         name,
+        GPU=GPU,
     )
