@@ -39,7 +39,7 @@ def kinetic_energy_operator(s: iDEA.system.System, GPU: bool = False):
     else:
         sp = sps
         fmt = "dia"
-    k = iDEA.methods.non_interacting.kinetic_energy_operator(s)
+    k = sps.csr_matrix(iDEA.methods.non_interacting.kinetic_energy_operator(s))
     k = sp.csr_matrix(k) if GPU else sps.dia_matrix(k)
     I = sp.identity(s.x.shape[0], format=fmt)
     partial_operators = lambda A, B, k, n: (
@@ -51,11 +51,7 @@ def kinetic_energy_operator(s: iDEA.system.System, GPU: bool = False):
     generate_terms = lambda f, A, B, n: (
         fold_partial_operators(f, partial_operators(A, B, k, n)) for k in range(n)
     )
-    terms = generate_terms(sp.kron, k, I, s.count)
-    size = s.x.shape[0] ** s.count
-    K = sp.csr_matrix((size, size), dtype=float) if GPU else sps.dia_matrix((size, size), dtype=float)
-    for term in terms:
-        K += term
+    K = functools.reduce(lambda a, b: a + b, generate_terms(sp.kron, k, I, s.count))
     return K
 
 
@@ -77,7 +73,7 @@ def external_potential_operator(s: iDEA.system.System, GPU: bool = False):
     else:
         sp = sps
         fmt = "dia"
-    vext = iDEA.methods.non_interacting.external_potential_operator(s)
+    vext = sps.csr_matrix(iDEA.methods.non_interacting.external_potential_operator(s))
     vext = sp.csr_matrix(vext) if GPU else sps.dia_matrix(vext)
     I = sp.identity(s.x.shape[0], format=fmt)
     partial_operators = lambda A, B, k, n: (
@@ -89,11 +85,7 @@ def external_potential_operator(s: iDEA.system.System, GPU: bool = False):
     generate_terms = lambda f, A, B, n: (
         fold_partial_operators(f, partial_operators(A, B, k, n)) for k in range(n)
     )
-    terms = generate_terms(sp.kron, vext, I, s.count)
-    size = s.x.shape[0] ** s.count
-    Vext = sp.csr_matrix((size, size), dtype=float) if GPU else sps.dia_matrix((size, size), dtype=float)
-    for term in terms:
-        Vext += term
+    Vext = functools.reduce(lambda a, b: a + b, generate_terms(sp.kron, vext, I, s.count))
     return Vext
 
 
@@ -120,7 +112,7 @@ def hamiltonian(s: iDEA.system.System, GPU: bool = False):
         fmt = "dia"
 
     # Construct the non-interacting part of the many-body Hamiltonian
-    h = iDEA.methods.non_interacting.hamiltonian(s)[0]
+    h = sps.csr_matrix(iDEA.methods.non_interacting.hamiltonian(s)[0])
     h = sp.csr_matrix(h) if GPU else sps.dia_matrix(h)
     I = sp.identity(s.x.shape[0], format=fmt)
     partial_operators = lambda A, B, k, n: (
@@ -132,11 +124,7 @@ def hamiltonian(s: iDEA.system.System, GPU: bool = False):
     generate_terms = lambda f, A, B, n: (
         fold_partial_operators(f, partial_operators(A, B, k, n)) for k in range(n)
     )
-    terms = generate_terms(sp.kron, h, I, s.count)
-    size = s.x.shape[0] ** s.count
-    H0 = sp.csr_matrix((size, size), dtype=float) if GPU else sps.dia_matrix((size, size), dtype=float)
-    for term in terms:
-        H0 += term
+    H0 = functools.reduce(lambda a, b: a + b, generate_terms(sp.kron, h, I, s.count))
 
     # Add the interaction part of the many-body Hamiltonian
     symbols = string.ascii_lowercase + string.ascii_uppercase

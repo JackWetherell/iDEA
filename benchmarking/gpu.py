@@ -1,6 +1,6 @@
 """Benchmark GPU vs CPU scaling of the iDEA interacting solver.
 
-Solves the QHO ground state for grid sizes 50–500 (steps of 50) and records
+Solves the QHO ground state for a range of grid sizes and records
 wall-clock time and memory usage for both the CPU and GPU paths.
 
 Usage (from repo root):
@@ -10,8 +10,10 @@ Output:
     benchmarking/gpu_scaling.png
 """
 
+
 import gc
 import os
+import threading
 import time
 
 import matplotlib.pyplot as plt
@@ -23,49 +25,58 @@ import iDEA.methods.interacting
 import iDEA.system
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
 def make_qho(N: int) -> iDEA.system.System:
-    """Return a QHO system with N grid points (mirrors iDEA.system.systems.qho)."""
     x = np.linspace(-10, 10, N)
     v_ext = 0.5 * (0.25 ** 2) * x ** 2
     v_int = iDEA.interactions.softened_interaction(x)
     return iDEA.system.System(x, v_ext, v_int, "uu")
 
 
-# ---------------------------------------------------------------------------
-# Benchmark parameters
-# ---------------------------------------------------------------------------
-
-GRID_SIZES = list(range(50, 401, 50))   # [50, 100, 150, ..., 500]
+GRID_SIZES = list(range(50, 451, 50))  
 
 cpu_times = []
 cpu_mems  = []
 gpu_times = []
 gpu_mems  = []
 
-# ---------------------------------------------------------------------------
-# CPU pass
-# ---------------------------------------------------------------------------
 
 proc = psutil.Process(os.getpid())
+
+
+def _peak_rss_gb(fn):
+    baseline = proc.memory_info().rss
+    peak = [baseline]
+    stop = threading.Event()
+
+    def _poll():
+        while not stop.is_set():
+            rss = proc.memory_info().rss
+            if rss > peak[0]:
+                peak[0] = rss
+            time.sleep(0.05)
+
+    t = threading.Thread(target=_poll, daemon=True)
+    t.start()
+    result = fn()
+    stop.set()
+    t.join()
+    return result, (peak[0] - baseline) / 1024 ** 3
+
 
 print("=== CPU benchmarks ===")
 for N in GRID_SIZES:
     print(f"  N={N}  (Hamiltonian size {N**2}×{N**2})")
     s = make_qho(N)
     gc.collect()
-    mem_before = proc.memory_info().rss
 
     t0 = time.perf_counter()
     try:
-        state = iDEA.methods.interacting.solve(s, k=0, GPU=False)
+        state, peak_gb = _peak_rss_gb(
+            lambda: iDEA.methods.interacting.solve(s, k=0, GPU=False)
+        )
         t1 = time.perf_counter()
-        mem_after = proc.memory_info().rss
         cpu_times.append(t1 - t0)
-        cpu_mems.append((mem_after - mem_before) / 1024 ** 3)
+        cpu_mems.append(peak_gb)
         del state
     except Exception as exc:
         t1 = time.perf_counter()
@@ -75,9 +86,6 @@ for N in GRID_SIZES:
 
     gc.collect()
 
-# ---------------------------------------------------------------------------
-# GPU pass
-# ---------------------------------------------------------------------------
 
 print("\n=== GPU benchmarks ===")
 try:
@@ -96,16 +104,16 @@ for N in GRID_SIZES:
     print(f"  N={N}  (Hamiltonian size {N**2}×{N**2})")
     s = make_qho(N)
     cp.get_default_memory_pool().free_all_blocks()
-    free_before, _ = cp.cuda.Device().mem_info
 
     t0 = time.perf_counter()
     try:
         state = iDEA.methods.interacting.solve(s, k=0, GPU=True)
         t1 = time.perf_counter()
-        free_after, _ = cp.cuda.Device().mem_info
-        gpu_times.append(t1 - t0)
-        gpu_mems.append((free_before - free_after) / 1024 ** 3)
         del state
+        gc.collect()
+        peak_vram_gb = cp.get_default_memory_pool().total_bytes() / 1024 ** 3
+        gpu_times.append(t1 - t0)
+        gpu_mems.append(peak_vram_gb)
     except Exception as exc:
         t1 = time.perf_counter()
         print(f"    FAILED: {exc}")
@@ -114,33 +122,28 @@ for N in GRID_SIZES:
 
     cp.get_default_memory_pool().free_all_blocks()
 
-# ---------------------------------------------------------------------------
-# Plot
-# ---------------------------------------------------------------------------
 
-COLOR_TIME = "steelblue"
-COLOR_MEM  = "coral"
+COLOR_CPU = "steelblue"
+COLOR_GPU = "green"
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+x_cpu = GRID_SIZES[: len(cpu_times)]
+x_gpu = GRID_SIZES[: len(gpu_times)]
 
-for ax, times, mems, title in (
-    (ax1, cpu_times, cpu_mems, "CPU (Intel i9)"),
-    (ax2, gpu_times, gpu_mems, "GPU (RTX 4090)"),
-):
-    ax_mem = ax.twinx()
+fig, (ax_time, ax_mem) = plt.subplots(1, 2, figsize=(12, 5))
 
-    (line_t,) = ax.plot(GRID_SIZES, times, "o-",  color=COLOR_TIME, label="Solve time (s)")
-    (line_m,) = ax_mem.plot(GRID_SIZES, mems,  "s--", color=COLOR_MEM,  label="Memory (GB)")
+ax_time.plot(x_cpu, cpu_times, "o-",  color=COLOR_CPU, label="CPU (Intel i9)")
+ax_time.plot(x_gpu, gpu_times, "o-",  color=COLOR_GPU, label="GPU (RTX 4090)")
+ax_time.set_title("Solve time")
+ax_time.set_xlabel("Number of grid points")
+ax_time.set_ylabel("Time (s)")
+ax_time.legend()
 
-    ax.set_title(title)
-    ax.set_xlabel("Number of grid points")
-    ax.set_ylabel("Solve time (s)", color=COLOR_TIME)
-    ax.tick_params(axis="y", labelcolor=COLOR_TIME)
-
-    ax_mem.set_ylabel("Memory usage (GB)", color=COLOR_MEM)
-    ax_mem.tick_params(axis="y", labelcolor=COLOR_MEM)
-
-    ax.legend(handles=[line_t, line_m], loc="upper left")
+ax_mem.plot(x_cpu, cpu_mems, "o-",  color=COLOR_CPU, label="CPU RAM (Intel i9)")
+ax_mem.plot(x_gpu, gpu_mems, "o-",  color=COLOR_GPU, label="GPU VRAM (RTX 4090)")
+ax_mem.set_title("Peak memory usage")
+ax_mem.set_xlabel("Number of grid points")
+ax_mem.set_ylabel("Memory (GB)")
+ax_mem.legend()
 
 fig.suptitle("iDEA interacting solver – scaling with grid size (QHO, 2 electrons, ground state)")
 plt.tight_layout()
