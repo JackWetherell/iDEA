@@ -18,7 +18,7 @@ import iDEA.methods.non_interacting
 name = "interacting"
 
 
-def kinetic_energy_operator(s: iDEA.system.System) -> sps.dia_matrix:
+def kinetic_energy_operator(s: iDEA.system.System, GPU: bool = False):
     r"""
     Compute many-particle kinetic energy operator as a matrix.
 
@@ -27,85 +27,104 @@ def kinetic_energy_operator(s: iDEA.system.System) -> sps.dia_matrix:
 
     | Args:
     |     s: iDEA.system.System, System object.
+    |     GPU: bool, Compute on GPU using cupy. If false will use scipy on CPU. (default = False)
 
     | Returns:
-    |     K: sps.dia_matrix, Kintetic energy operator.
+    |     K: sparse matrix, Kintetic energy operator.
     """
-    k = iDEA.methods.non_interacting.kinetic_energy_operator(s)
-    k = sps.dia_matrix(k)
-    I = sps.identity(s.x.shape[0], format="dia")
+    if GPU:
+        import cupyx.scipy.sparse as csps
+        sp = csps
+        fmt = "csr"
+    else:
+        sp = sps
+        fmt = "dia"
+    k = sps.csr_matrix(iDEA.methods.non_interacting.kinetic_energy_operator(s))
+    k = sp.csr_matrix(k) if GPU else sps.dia_matrix(k)
+    I = sp.identity(s.x.shape[0], format=fmt)
     partial_operators = lambda A, B, k, n: (
         A if i + k == n - 1 else B for i in range(n)
     )
     fold_partial_operators = lambda f, po: functools.reduce(
-        lambda acc, val: f(val, acc, format="dia"), po
+        lambda acc, val: f(val, acc, format=fmt), po
     )
     generate_terms = lambda f, A, B, n: (
         fold_partial_operators(f, partial_operators(A, B, k, n)) for k in range(n)
     )
-    terms = generate_terms(sps.kron, k, I, s.count)
-    K = sps.dia_matrix((s.x.shape[0] ** s.count,) * 2, dtype=float)
-    for term in terms:
-        K += term
+    K = functools.reduce(lambda a, b: a + b, generate_terms(sp.kron, k, I, s.count))
     return K
 
 
-def external_potential_operator(s: iDEA.system.System) -> sps.dia_matrix:
+def external_potential_operator(s: iDEA.system.System, GPU: bool = False):
     r"""
     Compute many-particle external potential energy operator as a matrix.
 
     | Args:
     |     s: iDEA.system.System, System object.
+    |     GPU: bool, Compute on GPU using cupy. If false will use scipy on CPU. (default = False)
 
     | Returns:
-    |     Vext: sps.dia_matrix, External potential operator.
+    |     Vext: sparse matrix, External potential operator.
     """
-    vext = iDEA.methods.non_interacting.external_potential_operator(s)
-    vext = sps.dia_matrix(vext)
-    I = sps.identity(s.x.shape[0], format="dia")
+    if GPU:
+        import cupyx.scipy.sparse as csps
+        sp = csps
+        fmt = "csr"
+    else:
+        sp = sps
+        fmt = "dia"
+    vext = sps.csr_matrix(iDEA.methods.non_interacting.external_potential_operator(s))
+    vext = sp.csr_matrix(vext) if GPU else sps.dia_matrix(vext)
+    I = sp.identity(s.x.shape[0], format=fmt)
     partial_operators = lambda A, B, k, n: (
         A if i + k == n - 1 else B for i in range(n)
     )
     fold_partial_operators = lambda f, po: functools.reduce(
-        lambda acc, val: f(val, acc, format="dia"), po
+        lambda acc, val: f(val, acc, format=fmt), po
     )
     generate_terms = lambda f, A, B, n: (
         fold_partial_operators(f, partial_operators(A, B, k, n)) for k in range(n)
     )
-    terms = generate_terms(sps.kron, vext, I, s.count)
-    Vext = sps.dia_matrix((s.x.shape[0] ** s.count,) * 2, dtype=float)
-    for term in terms:
-        Vext += term
+    Vext = functools.reduce(lambda a, b: a + b, generate_terms(sp.kron, vext, I, s.count))
     return Vext
 
 
-def hamiltonian(s: iDEA.system.System) -> sps.dia_matrix:
+def hamiltonian(s: iDEA.system.System, GPU: bool = False):
     r"""
     Compute the many-body Hamiltonian.
 
     | Args:
     |     s: iDEA.system.System, System object.
+    |     GPU: bool, Compute on GPU using cupy. If false will use scipy on CPU. (default = False)
 
     | Returns:
-    |     H: sps.dia_matrix, Hamiltonian.
+    |     H: sparse matrix, Hamiltonian.
     """
+    if GPU:
+        import cupy as cp
+        import cupyx.scipy.sparse as csps
+        sp = csps
+        xp = cp
+        fmt = "csr"
+    else:
+        sp = sps
+        xp = np
+        fmt = "dia"
+
     # Construct the non-interacting part of the many-body Hamiltonian
-    h = iDEA.methods.non_interacting.hamiltonian(s)[0]
-    h = sps.dia_matrix(h)
-    I = sps.identity(s.x.shape[0], format="dia")
+    h = sps.csr_matrix(iDEA.methods.non_interacting.hamiltonian(s)[0])
+    h = sp.csr_matrix(h) if GPU else sps.dia_matrix(h)
+    I = sp.identity(s.x.shape[0], format=fmt)
     partial_operators = lambda A, B, k, n: (
         A if i + k == n - 1 else B for i in range(n)
     )
     fold_partial_operators = lambda f, po: functools.reduce(
-        lambda acc, val: f(val, acc, format="dia"), po
+        lambda acc, val: f(val, acc, format=fmt), po
     )
     generate_terms = lambda f, A, B, n: (
         fold_partial_operators(f, partial_operators(A, B, k, n)) for k in range(n)
     )
-    terms = generate_terms(sps.kron, h, I, s.count)
-    H0 = sps.dia_matrix((s.x.shape[0] ** s.count,) * 2, dtype=float)
-    for term in terms:
-        H0 += term
+    H0 = functools.reduce(lambda a, b: a + b, generate_terms(sp.kron, h, I, s.count))
 
     # Add the interaction part of the many-body Hamiltonian
     symbols = string.ascii_lowercase + string.ascii_uppercase
@@ -113,13 +132,14 @@ def hamiltonian(s: iDEA.system.System) -> sps.dia_matrix:
         indices = ",".join(
             ["".join(c) for c in itertools.combinations(symbols[: s.count], 2)]
         )
-        U = np.log(
-            np.einsum(
+        v_int = xp.asarray(s.v_int) if GPU else s.v_int
+        U = xp.log(
+            xp.einsum(
                 indices + "->" + symbols[: s.count],
-                *(np.exp(s.v_int),) * int(s.count * (s.count - 1) / 2)
+                *(xp.exp(v_int),) * int(s.count * (s.count - 1) / 2)
             )
         )
-        U = sps.diags(U.reshape((H0.shape[0])), format="dia")
+        U = sp.diags(U.reshape((H0.shape[0])), format=fmt)
     else:
         U = 0.0
 
@@ -280,7 +300,7 @@ def solve(
 
     # Construct the Hamiltonian.
     if H is None:
-        H = hamiltonian(s)
+        H = hamiltonian(s, GPU=GPU)
 
     # Estimate the level of excitation.
     if level is None:
