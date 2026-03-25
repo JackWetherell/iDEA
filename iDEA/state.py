@@ -5,11 +5,14 @@ from abc import ABC as Interface
 import copy
 import numpy as np
 import iDEA.utilities
+import pickle
 
 
 __all__ = [
     "State",
+    "States",
     "ManyBodyState",
+    "ManyBodyStates",
     "SingleBodyState",
     "Evolution",
     "ManyBodyEvolution",
@@ -21,6 +24,10 @@ class State(Interface):
     """Interface class representing a static state."""
 
 
+class States(Interface):
+    """Interface class representing a group of static states."""
+
+
 class Evolution(Interface):
     """Interface class representing a time-dependent evolution of a state."""
 
@@ -29,7 +36,7 @@ class ManyBodyState(State):
     """State of interacting particles."""
 
     def __init__(
-        self, space: np.ndarray = None, spin: np.ndarray = None, full=None, energy=None
+        self, space: np.ndarray = None, spin: np.ndarray = None, full=None, energy=None,
     ):
         r"""
         State of particles in a many-body state.
@@ -66,6 +73,48 @@ class ManyBodyState(State):
             self.energy = float()
         else:
             self.energy = energy
+
+
+class ManyBodyStates(States):
+    """A collection of many-body states over a range of energy levels from a single system of interacting particles."""
+
+    def __init__(
+        self, spaces: np.ndarray = None, spins: np.ndarray = None, fulls=None, energies=None
+    ):
+        r"""
+        Collection of many-body states indexed by energy level n.
+
+        Each state is described by a spatial part
+        .. math:: \psi(x_1,x_2,\dots,x_N,n)
+        on the spatial grid, and a spin part on the spin grid
+        .. math:: \chi(\sigma_1,\sigma_2,\dots,\sigma_N,n).
+        These are NOT necessarily antisymmetric states;
+        they can be combined using the antisymmetrisation operation to produce the full
+        wavefunction
+        .. math:: \Psi(x_1,\sigma_1,x_2,\sigma_2,\dots,x_N,\sigma_N,n).
+
+        | Args:
+        |     spaces: np.ndarray, Spatial part of each wavefunction on the spatial grid \psi(x_1,x_2,\dots,x_N,n). (default = None)
+        |     spins: np.ndarray, Spin part of each wavefunction on the spin grid \chi(\sigma_1,\sigma_2,\dots,\sigma_N,n). (default = None)
+        |     fulls: np.ndarray, Total antisymmetrised wavefunction of each state \Psi(x_1,\sigma_1,x_2,\sigma_2,\dots,x_N,\sigma_N,n). (default = None)
+        |     energies: np.ndarray, Total energy of each state, indexed as energies[n]. (default = None)
+        """
+        if spaces is None:
+            self.spaces = iDEA.utilities.ArrayPlaceholder()
+        else:
+            self.spaces = spaces
+        if spins is None:
+            self.spins = iDEA.utilities.ArrayPlaceholder()
+        else:
+            self.spins = spins
+        if fulls is None:
+            self.fulls = iDEA.utilities.ArrayPlaceholder()
+        else:
+            self.fulls = fulls
+        if energies is None:
+            self.energies = iDEA.utilities.ArrayPlaceholder()
+        else:
+            self.energies = energies
 
 
 class SingleBodyState(State):
@@ -141,3 +190,48 @@ class SingleBodyEvolution(Evolution):
         self.down.td_orbitals = iDEA.utilities.ArrayPlaceholder()
         self.v_ptrb = iDEA.utilities.ArrayPlaceholder()
         self.t = iDEA.utilities.ArrayPlaceholder()
+
+
+def save_many_body_state(state: ManyBodyState, file_name: str) -> None:
+    r"""
+    Save a many body state to a system file.
+
+    | Args:
+    |     state: iDEA.state.ManyBodyState, State object to save.
+    |     file_name: str, file name.
+    """
+    pickle.dump(state, open(file_name, "wb"))
+
+def save_single_body_state(state: SingleBodyState, file_name: str) -> None:
+    r"""
+    Save a single body state to a system file.
+
+    | Args:
+    |     state: iDEA.state.SingleBodyState, State object to save.
+    |     file_name: str, file name.
+    """
+    pickle.dump(state, open(file_name, "wb"))
+
+def load_many_body_state(file_name: str) -> ManyBodyState:
+    r"""
+    Load a many body state from an system file.
+
+    | Args:
+    |     file_name: str, file name.
+
+    | Returns
+    |     system: iDEA.state.ManyBodyState, Loaded State object.
+    """
+    return pickle.load(open(file_name, "rb"))
+
+def load_single_body_state(file_name: str) -> SingleBodyState:
+    r"""
+    Load a single body state from an system file.
+
+    | Args:
+    |     file_name: str, file name.
+
+    | Returns
+    |     system: iDEA.state.SingleBodyState, Loaded State object.
+    """
+    return pickle.load(open(file_name, "rb"))
