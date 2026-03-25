@@ -6,6 +6,7 @@ import copy
 import string
 import itertools
 import functools
+from typing import Union
 from tqdm import tqdm
 import numpy as np
 import scipy.sparse as sps
@@ -279,31 +280,28 @@ def _estimate_level(s: iDEA.system.System, k: int) -> int:
     return (abs(s.up_count - s.down_count) + 1) ** 2 * s.count * (k + 1)
 
 
-def solve(
-    s: iDEA.system.System, H: np.ndarray = None, k: int = 0, level=None, GPU=False
-) -> iDEA.state.ManyBodyState:
+def solve(s: iDEA.system.System, H: np.ndarray = None, k: int = 0, level=None, GPU=False) -> Union[iDEA.state.ManyBodyState, iDEA.state.ManyBodyStates]:
     r"""
     Solves the interacting Schrodinger equation of the given system.
 
     | Args:
     |     s: iDEA.system.System, System object.
     |     H: np.ndarray, Hamiltonian [If None this will be computed from s]. (default = None)
-    |     k: int, Energy state to solve for. (default = 0, the ground-state)
+    |     k: int, Energy state to solve for. If -1 will return all states. (default = 0, the ground-state)
     |     level: int. Max level of excitation to use when solving the Schrodinger equation.
     |     GPU: bool, Solve on GPU using cupy. If false will use scipy on CPU.
 
     | Returns:
-    |     state: iDEA.state.ManyBodyState, Solved state.
+    |     state: iDEA.state.ManyBodyState or iDEA.state.ManyBodyStates, Solved state, or collection of all solved states if k=-1.
     """
-    # Construct the many-body state.
-    state = iDEA.state.ManyBodyState()
-
     # Construct the Hamiltonian.
     if H is None:
         H = hamiltonian(s, GPU=GPU)
 
     # Estimate the level of excitation.
     if level is None:
+        if k == -1:
+            raise ValueError("level must be provided explicitly when k=-1 (all states).")
         level = _estimate_level(s, k)
 
     # Solve the many-body Schrodinger equation.
@@ -343,12 +341,21 @@ def solve(
     fulls, spaces, spins, energies = antisymmetrize(s, spaces, spins, energies)
 
     # Populate the state.
-    state.space = spaces[..., k]
-    state.spin = spins[..., k]
-    state.full = fulls[..., k]
-    state.energy = energies[k]
-
-    return state
+    if k != -1:
+        state = iDEA.state.ManyBodyState()
+        state.space = spaces[..., k]
+        state.spin = spins[..., k]
+        state.full = fulls[..., k]
+        state.energy = energies[k]
+        return state
+    else:
+        states = iDEA.state.ManyBodyStates()
+        states.spaces = spaces
+        states.spins = spins
+        states.fulls = fulls
+        states.energies = energies
+        return states
+    
 
 
 def propagate_step(
