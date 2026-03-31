@@ -28,15 +28,18 @@ To install the [latest version of the iDEA code](https://pypi.org/project/iDEA-l
 
 `pip install iDEA-latest`
 
-To add iDEA to your poetry environment:
-
-`poetry add iDEA-latest`
-
 ### Developer
 
 If you would like to develop iDEA, first fork this git repository, and then clone from there.
 
 Add the upstream repository: `git remote add upstream https://github.com/iDEA-org/iDEA.git`
+
+Optionally, create a virtual environment first:
+
+```
+python -m venv .venv
+source .venv/bin/activate
+```
 
 Install locally with dev dependencies: `pip install -e ".[dev]"`
 
@@ -115,9 +118,7 @@ iDEA was used to create teaching content for the [Density Functional Theory MOOC
 Dr. Jack Wetherell, Dr. Matt Hodgson and Dr. Leopold Talirz.
 
 <div style="display:flex;">
-    <img src="docs/Jack_Wetherell.jpeg" style="width:25%;">
-    <img src="docs/Matt_Hodgson.jpg" style="width:28%">
-    <img src="docs/Leopold_Talirz.jpeg" style="width:25%">
+    <img src="docs/photos.png" style="width:40%">
 </div>
 
 <!--img src="docs/dev.png" alt="" width="500"/-->
@@ -126,7 +127,7 @@ Dr. Jack Wetherell, Dr. Matt Hodgson and Dr. Leopold Talirz.
 
 We thank all of the developers, PhD students, master's students, summer project interns and researchers for thier key contributions to iDEA:
 
-Sean Adamson, Jacob Chapman, Thomas Durrant, Razak Elmaslmane, Mike Entwistle, Rex Godby, Matt Hodgson, Piers Lillystone, Aaron Long, Robbie Oliver, James Ramsden, Ewan Richardson, Matthew Smith, Leopold Talirz and Jack Wetherell. 
+Sean Adamson, Jacob Chapman, Thomas Durrant, Razak Elmaslmane, Mike Entwistle, Rex Godby, Matt Hodgson, Piers Lillystone, Aaron Long, Robbie Oliver, James Ramsden, Ewan Richardson, Paul Sharp, Matthew Smith, Leopold Talirz and Jack Wetherell. 
 
 ## Getting Involved
 
