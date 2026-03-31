@@ -1,3 +1,5 @@
+# isort: skip_file
+# Import order matters: lda must precede hybrid (hybrid references iDEA.methods.lda at module level)
 import iDEA.utilities
 import iDEA.system
 import iDEA.interactions
@@ -11,7 +13,6 @@ import iDEA.methods.lda
 import iDEA.methods.hybrid
 import iDEA.methods.kssce
 import iDEA.reverse_engineering
-
 
 __all__ = [
     "iDEA.utilities",

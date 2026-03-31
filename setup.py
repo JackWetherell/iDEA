@@ -31,10 +31,17 @@ setuptools.setup(
         'matplotlib>=3.5.1',
         'jupyterlab>=3.3.2',
         'tqdm>=4.64.0',
-        'black>=22.3.0',
-        'autoflake>=1.4.0',
-        'build>=0.7.0',
-        'twine>=4.0.0',
-        'pytest>=8.3.0'
     ],
+    extras_require={
+        'dev': [
+            'ruff>=0.15.0',
+            'black>=22.3.0',
+            'autoflake>=1.4.0',
+            'build>=0.7.0',
+            'twine>=4.0.0',
+            'pytest>=8.3.0',
+            'Sphinx>=5.1.0',
+            'sphinx-rtd-theme>=1.0.0',
+        ],
+    },
 )

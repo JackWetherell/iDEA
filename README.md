@@ -38,7 +38,16 @@ If you would like to develop iDEA, first fork this git repository, and then clon
 
 Add the upstream repository: `git remote add upstream https://github.com/iDEA-org/iDEA.git`
 
-And then install locally: `python setup.py install`
+Install locally with dev dependencies: `pip install -e ".[dev]"`
+
+### Code Quality
+
+iDEA uses [ruff](https://docs.astral.sh/ruff/) for linting and formatting, installed automatically with the dev dependencies. Before submitting a pull request, please run:
+
+```
+ruff check iDEA/ tests/ benchmarking/
+ruff format iDEA/ tests/ benchmarking/
+```
 
 ### Testing
 

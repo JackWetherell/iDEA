@@ -1,12 +1,12 @@
 """Defines the structures to describe the system states"""
 
-
-from abc import ABC as Interface
 import copy
-import numpy as np
-import iDEA.utilities
 import pickle
+from abc import ABC as Interface
 
+import numpy as np
+
+import iDEA.utilities
 
 __all__ = [
     "State",
@@ -36,7 +36,11 @@ class ManyBodyState(State):
     """State of interacting particles."""
 
     def __init__(
-        self, space: np.ndarray = None, spin: np.ndarray = None, full=None, energy=None,
+        self,
+        space: np.ndarray = None,
+        spin: np.ndarray = None,
+        full=None,
+        energy=None,
     ):
         r"""
         State of particles in a many-body state.
@@ -70,7 +74,7 @@ class ManyBodyState(State):
         else:
             self.full = full
         if energy is None:
-            self.energy = float()
+            self.energy = 0.0
         else:
             self.energy = energy
 
@@ -78,9 +82,7 @@ class ManyBodyState(State):
 class ManyBodyStates(States):
     """A collection of many-body states over a range of energy levels from a single system of interacting particles."""
 
-    def __init__(
-        self, spaces: np.ndarray = None, spins: np.ndarray = None, fulls=None, energies=None
-    ):
+    def __init__(self, spaces: np.ndarray = None, spins: np.ndarray = None, fulls=None, energies=None):
         r"""
         Collection of many-body states indexed by energy level n.
 
@@ -200,7 +202,9 @@ def save_many_body_state(state: ManyBodyState, file_name: str) -> None:
     |     state: iDEA.state.ManyBodyState, State object to save.
     |     file_name: str, file name.
     """
-    pickle.dump(state, open(file_name, "wb"))
+    with open(file_name, "wb") as f:
+        pickle.dump(state, f)
+
 
 def save_single_body_state(state: SingleBodyState, file_name: str) -> None:
     r"""
@@ -210,7 +214,9 @@ def save_single_body_state(state: SingleBodyState, file_name: str) -> None:
     |     state: iDEA.state.SingleBodyState, State object to save.
     |     file_name: str, file name.
     """
-    pickle.dump(state, open(file_name, "wb"))
+    with open(file_name, "wb") as f:
+        pickle.dump(state, f)
+
 
 def load_many_body_state(file_name: str) -> ManyBodyState:
     r"""
@@ -223,6 +229,7 @@ def load_many_body_state(file_name: str) -> ManyBodyState:
     |     system: iDEA.state.ManyBodyState, Loaded State object.
     """
     return pickle.load(open(file_name, "rb"))
+
 
 def load_single_body_state(file_name: str) -> SingleBodyState:
     r"""
