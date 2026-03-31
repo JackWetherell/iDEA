@@ -2,6 +2,50 @@
 requires = ["setuptools>=42"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "iDEA"
+version = "1.0.3"
+description = "interacting Dynamic Electrons Approach"
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+authors = [
+    {name = "Jack Wetherell", email = "jack.wetherell@gmail.com"},
+    {name = "Leopold Talirz", email = "leopold.talirz@gmail.com"},
+    {name = "Matthew Hodgson", email = "matt.hodgson@york.ac.uk"},
+    {name = "Rex Godby", email = "rex.godby@york.ac.uk"},
+]
+license = "GPL-3.0"
+requires-python = ">= 3.8"
+dependencies = [
+    "numpy>=1.22.3",
+    "scipy>=1.8.0",
+    "matplotlib>=3.5.1",
+    "jupyterlab>=3.3.2",
+    "tqdm>=4.64.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "autoflake>=1.4.0",
+    "black>=22.3.0",
+    "build>=0.7.0",
+    "pytest>=8.3.0",
+    "ruff>=0.15.0",
+    "Sphinx>=5.1.0",
+    "sphinx-rtd-theme>=1.0.0",
+    "twine>=4.0.0",
+]
+
+[project.urls]
+"Home page" = "https://idea-org.github.io/"
+"Bug Tracker" = "https://github.com/iDEA-org/iDEA/issues"
+
+[tool.setuptools]
+packages.find = {}
+package-dir = {"" = "."}
 
 [tool.ruff]
 target-version = "py38"
