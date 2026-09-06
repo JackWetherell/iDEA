@@ -1,21 +1,21 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>iDEA.observables &mdash; iDEA 1.0.0 documentation</title>
+  <title>iDEA.observables &mdash; iDEA 1.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=eafc0fe6" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=af2ce170"></script>
-      <script src="../../_static/doctools.js?v=888ff710"></script>
-      <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -71,26 +71,28 @@
              
   <h1>Source code for iDEA.observables</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">string</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">string</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">iDEA.system</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">iDEA.state</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">iDEA.methods.non_interacting</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">iDEA.methods.interacting</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">iDEA.methods.non_interacting</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">iDEA.state</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">iDEA.system</span>
 
 
-<div class="viewcode-block" id="observable"><a class="viewcode-back" href="../../iDEA.html#iDEA.observables.observable">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">observable</span><span class="p">(</span>
+<div class="viewcode-block" id="observable">
+<a class="viewcode-back" href="../../iDEA.html#iDEA.observables.observable">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">observable</span><span class="p">(</span>
     <span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span>
     <span class="n">observable_operator</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">state</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyState</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyState</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">evolution</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
-        <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyEvolution</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span>
-    <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">evolution</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyEvolution</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">return_spins</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    Compute an observable based on a given operator and state or evolution.</span>
 
 <span class="sd">    | Args:</span>
@@ -102,11 +104,11 @@
 
 <span class="sd">    | Returns:</span>
 <span class="sd">    |     observable: float or np.ndarray, Observable.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">==</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyState</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyState</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">==</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyState</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyState</span><span class="p">):</span>
         <span class="n">up_O</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">up</span><span class="o">.</span><span class="n">orbitals</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
             <span class="n">up_O</span> <span class="o">+=</span> <span class="p">(</span>
@@ -133,13 +135,13 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">O</span>
 
-    <span class="k">if</span> <span class="n">evolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">evolution</span><span class="p">)</span> <span class="o">==</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">evolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">evolution</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">evolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">evolution</span><span class="p">)</span> <span class="o">==</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyEvolution</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">evolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">evolution</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyEvolution</span><span class="p">):</span>
         <span class="n">up_O</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">evolution</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">I</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">evolution</span><span class="o">.</span><span class="n">up</span><span class="o">.</span><span class="n">occupied</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ti</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">evolution</span><span class="o">.</span><span class="n">t</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">_ti</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">evolution</span><span class="o">.</span><span class="n">t</span><span class="p">):</span>
                 <span class="n">up_O</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span>
                     <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span>
                         <span class="n">evolution</span><span class="o">.</span><span class="n">up</span><span class="o">.</span><span class="n">td_orbitals</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">],</span>
@@ -150,13 +152,11 @@
                 <span class="p">)</span>
         <span class="n">down_O</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">evolution</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">I</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">evolution</span><span class="o">.</span><span class="n">down</span><span class="o">.</span><span class="n">occupied</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ti</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">evolution</span><span class="o">.</span><span class="n">t</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">_ti</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">evolution</span><span class="o">.</span><span class="n">t</span><span class="p">):</span>
                 <span class="n">down_O</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span>
                     <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span>
                         <span class="n">evolution</span><span class="o">.</span><span class="n">down</span><span class="o">.</span><span class="n">td_orbitals</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">],</span>
-                        <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span>
-                            <span class="n">observable_operator</span><span class="p">,</span> <span class="n">evolution</span><span class="o">.</span><span class="n">down</span><span class="o">.</span><span class="n">td_orbitals</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span>
-                        <span class="p">),</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">observable_operator</span><span class="p">,</span> <span class="n">evolution</span><span class="o">.</span><span class="n">down</span><span class="o">.</span><span class="n">td_orbitals</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]),</span>
                     <span class="p">)</span>
                     <span class="o">*</span> <span class="n">evolution</span><span class="o">.</span><span class="n">down</span><span class="o">.</span><span class="n">occupations</span><span class="p">[</span><span class="n">I</span><span class="p">]</span>
                     <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">dx</span>
@@ -168,19 +168,20 @@
             <span class="k">return</span> <span class="n">O</span><span class="o">.</span><span class="n">real</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;State or Evolution must be provided.&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">"State or Evolution must be provided."</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="density"><a class="viewcode-back" href="../../iDEA.html#iDEA.observables.density">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">density</span><span class="p">(</span>
+
+<div class="viewcode-block" id="density">
+<a class="viewcode-back" href="../../iDEA.html#iDEA.observables.density">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">density</span><span class="p">(</span>
     <span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span>
     <span class="n">state</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyState</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyState</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">evolution</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
-        <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyEvolution</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span>
-    <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">evolution</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyEvolution</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">time_indices</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">return_spins</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    Compute the charge density of a non_interacting state.</span>
 
 <span class="sd">    | Args:</span>
@@ -192,16 +193,12 @@
 
 <span class="sd">    | Returns:</span>
 <span class="sd">    |     n: np.ndarray, Charge density, or evolution of charge density.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">==</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyState</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyState</span><span class="p">):</span>
         <span class="n">spin_densities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
-                <span class="n">spin_densities</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">full</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
-                    <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">dx</span> <span class="o">**</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-                    <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span>
-                <span class="p">)</span>
+                <span class="n">spin_densities</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">full</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">dx</span> <span class="o">**</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span>
         <span class="n">up_n</span> <span class="o">=</span> <span class="n">spin_densities</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
         <span class="n">down_n</span> <span class="o">=</span> <span class="n">spin_densities</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">up_n</span> <span class="o">+</span> <span class="n">down_n</span>
@@ -210,7 +207,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">n</span>
 
-    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">==</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyState</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyState</span><span class="p">):</span>
         <span class="n">up_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">down_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">up</span><span class="o">.</span><span class="n">orbitals</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
@@ -223,24 +220,16 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">n</span>
 
-    <span class="k">if</span> <span class="n">evolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">evolution</span><span class="p">)</span> <span class="o">==</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">evolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">evolution</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">time_indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">time_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">evolution</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
         <span class="n">spin_densities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">time_indices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ti</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">time_indices</span><span class="p">):</span>
             <span class="n">l</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_lowercase</span><span class="p">[:</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span><span class="p">]</span>
             <span class="n">L</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span><span class="p">[:</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span><span class="p">]</span>
-            <span class="n">st</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">l</span>
-                <span class="o">+</span> <span class="s2">&quot;,&quot;</span>
-                <span class="o">+</span> <span class="n">L</span>
-                <span class="o">+</span> <span class="s2">&quot;-&gt;&quot;</span>
-                <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">L</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sub</span><span class="p">])</span>
-            <span class="p">)</span>
+            <span class="n">st</span> <span class="o">=</span> <span class="n">l</span> <span class="o">+</span> <span class="s2">","</span> <span class="o">+</span> <span class="n">L</span> <span class="o">+</span> <span class="s2">"-&gt;"</span> <span class="o">+</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">L</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sub</span><span class="p">])</span>
             <span class="n">full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">evolution</span><span class="o">.</span><span class="n">td_space</span><span class="p">[</span><span class="n">ti</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">evolution</span><span class="o">.</span><span class="n">spin</span><span class="p">)</span>
-            <span class="n">L</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-                <span class="nb">zip</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
-            <span class="p">)</span>
+            <span class="n">L</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))))</span>
             <span class="n">perms</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">permutations</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">count</span><span class="p">)))</span>
             <span class="n">full_copy</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">full</span><span class="p">)</span>
             <span class="n">full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">full_copy</span><span class="p">)</span>
@@ -252,11 +241,7 @@
             <span class="n">full</span> <span class="o">=</span> <span class="n">full</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">full</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">dx</span><span class="o">**</span><span class="n">s</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
                 <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
-                    <span class="n">spin_densities</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">full</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
-                        <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">dx</span> <span class="o">**</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-                        <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span>
-                    <span class="p">)</span>
+                    <span class="n">spin_densities</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">full</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">dx</span> <span class="o">**</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span>
         <span class="n">up_n</span> <span class="o">=</span> <span class="n">spin_densities</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
         <span class="n">down_n</span> <span class="o">=</span> <span class="n">spin_densities</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">up_n</span> <span class="o">+</span> <span class="n">down_n</span>
@@ -265,23 +250,17 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">n</span>
 
-    <span class="k">if</span> <span class="n">evolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">evolution</span><span class="p">)</span> <span class="o">==</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyEvolution</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">evolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">evolution</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyEvolution</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">time_indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">time_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">evolution</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
         <span class="n">up_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">time_indices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">I</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">evolution</span><span class="o">.</span><span class="n">up</span><span class="o">.</span><span class="n">occupied</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ti</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">time_indices</span><span class="p">):</span>
-                <span class="n">up_n</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="p">(</span>
-                    <span class="nb">abs</span><span class="p">(</span><span class="n">evolution</span><span class="o">.</span><span class="n">up</span><span class="o">.</span><span class="n">td_orbitals</span><span class="p">[</span><span class="n">ti</span><span class="p">,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span>
-                    <span class="o">*</span> <span class="n">evolution</span><span class="o">.</span><span class="n">up</span><span class="o">.</span><span class="n">occupations</span><span class="p">[</span><span class="n">I</span><span class="p">]</span>
-                <span class="p">)</span>
+                <span class="n">up_n</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">evolution</span><span class="o">.</span><span class="n">up</span><span class="o">.</span><span class="n">td_orbitals</span><span class="p">[</span><span class="n">ti</span><span class="p">,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">evolution</span><span class="o">.</span><span class="n">up</span><span class="o">.</span><span class="n">occupations</span><span class="p">[</span><span class="n">I</span><span class="p">]</span>
         <span class="n">down_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">time_indices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">I</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">evolution</span><span class="o">.</span><span class="n">down</span><span class="o">.</span><span class="n">occupied</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ti</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">time_indices</span><span class="p">):</span>
-                <span class="n">down_n</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="p">(</span>
-                    <span class="nb">abs</span><span class="p">(</span><span class="n">evolution</span><span class="o">.</span><span class="n">down</span><span class="o">.</span><span class="n">td_orbitals</span><span class="p">[</span><span class="n">ti</span><span class="p">,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span>
-                    <span class="o">*</span> <span class="n">evolution</span><span class="o">.</span><span class="n">down</span><span class="o">.</span><span class="n">occupations</span><span class="p">[</span><span class="n">I</span><span class="p">]</span>
-                <span class="p">)</span>
+                <span class="n">down_n</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">evolution</span><span class="o">.</span><span class="n">down</span><span class="o">.</span><span class="n">td_orbitals</span><span class="p">[</span><span class="n">ti</span><span class="p">,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">evolution</span><span class="o">.</span><span class="n">down</span><span class="o">.</span><span class="n">occupations</span><span class="p">[</span><span class="n">I</span><span class="p">]</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">up_n</span> <span class="o">+</span> <span class="n">down_n</span>
         <span class="k">if</span> <span class="n">return_spins</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">n</span><span class="p">,</span> <span class="n">up_n</span><span class="p">,</span> <span class="n">down_n</span>
@@ -289,19 +268,20 @@
             <span class="k">return</span> <span class="n">n</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;State or Evolution must be provided.&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">"State or Evolution must be provided."</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="density_matrix"><a class="viewcode-back" href="../../iDEA.html#iDEA.observables.density_matrix">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">density_matrix</span><span class="p">(</span>
+
+<div class="viewcode-block" id="density_matrix">
+<a class="viewcode-back" href="../../iDEA.html#iDEA.observables.density_matrix">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">density_matrix</span><span class="p">(</span>
     <span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span>
     <span class="n">state</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyState</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyState</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">evolution</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
-        <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyEvolution</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span>
-    <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">evolution</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyEvolution</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">time_indices</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">return_spins</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    Compute the charge density matrix of a non_interacting state.</span>
 
 <span class="sd">    | Args:</span>
@@ -313,13 +293,11 @@
 
 <span class="sd">    | Returns:</span>
 <span class="sd">    |     p: np.ndarray, Charge density matrix, or evolution of charge density matrix.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">==</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyState</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyState</span><span class="p">):</span>
         <span class="n">tosum</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span>
         <span class="n">spin_p</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">full</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">full</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="n">tosum</span><span class="p">,</span> <span class="n">tosum</span><span class="p">))</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span>
-                <span class="n">axis1</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis2</span><span class="o">=</span><span class="mi">3</span>
-            <span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">full</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">full</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="n">tosum</span><span class="p">,</span> <span class="n">tosum</span><span class="p">))</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="n">axis1</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis2</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
             <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">dx</span> <span class="o">**</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
             <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span>
         <span class="p">)</span>
@@ -331,21 +309,16 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">p</span>
 
-    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">==</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyState</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyState</span><span class="p">):</span>
         <span class="n">up_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
         <span class="n">down_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">up</span><span class="o">.</span><span class="n">orbitals</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
             <span class="n">up_p</span> <span class="o">+=</span> <span class="p">(</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span>
-                    <span class="n">state</span><span class="o">.</span><span class="n">up</span><span class="o">.</span><span class="n">orbitals</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">state</span><span class="o">.</span><span class="n">up</span><span class="o">.</span><span class="n">orbitals</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="n">axes</span><span class="o">=</span><span class="mi">0</span>
-                <span class="p">)</span>
-                <span class="o">*</span> <span class="n">state</span><span class="o">.</span><span class="n">up</span><span class="o">.</span><span class="n">occupations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">up</span><span class="o">.</span><span class="n">orbitals</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">state</span><span class="o">.</span><span class="n">up</span><span class="o">.</span><span class="n">orbitals</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="n">axes</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">state</span><span class="o">.</span><span class="n">up</span><span class="o">.</span><span class="n">occupations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">down</span><span class="o">.</span><span class="n">orbitals</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
             <span class="n">down_p</span> <span class="o">+=</span> <span class="p">(</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span>
-                    <span class="n">state</span><span class="o">.</span><span class="n">down</span><span class="o">.</span><span class="n">orbitals</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">state</span><span class="o">.</span><span class="n">down</span><span class="o">.</span><span class="n">orbitals</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="n">axes</span><span class="o">=</span><span class="mi">0</span>
-                <span class="p">)</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">down</span><span class="o">.</span><span class="n">orbitals</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">state</span><span class="o">.</span><span class="n">down</span><span class="o">.</span><span class="n">orbitals</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="n">axes</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
                 <span class="o">*</span> <span class="n">state</span><span class="o">.</span><span class="n">down</span><span class="o">.</span><span class="n">occupations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="p">)</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">up_p</span> <span class="o">+</span> <span class="n">down_p</span>
@@ -354,27 +327,17 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">p</span>
 
-    <span class="k">if</span> <span class="n">evolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">evolution</span><span class="p">)</span> <span class="o">==</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">evolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">evolution</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">time_indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">time_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">evolution</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
         <span class="n">tosum</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span>
-        <span class="n">spin_density_matrices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
-            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">time_indices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span>
-        <span class="p">)</span>
+        <span class="n">spin_density_matrices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">time_indices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ti</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">time_indices</span><span class="p">):</span>
             <span class="n">l</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_lowercase</span><span class="p">[:</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span><span class="p">]</span>
             <span class="n">L</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span><span class="p">[:</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span><span class="p">]</span>
-            <span class="n">st</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">l</span>
-                <span class="o">+</span> <span class="s2">&quot;,&quot;</span>
-                <span class="o">+</span> <span class="n">L</span>
-                <span class="o">+</span> <span class="s2">&quot;-&gt;&quot;</span>
-                <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">L</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sub</span><span class="p">])</span>
-            <span class="p">)</span>
+            <span class="n">st</span> <span class="o">=</span> <span class="n">l</span> <span class="o">+</span> <span class="s2">","</span> <span class="o">+</span> <span class="n">L</span> <span class="o">+</span> <span class="s2">"-&gt;"</span> <span class="o">+</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">L</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sub</span><span class="p">])</span>
             <span class="n">full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">evolution</span><span class="o">.</span><span class="n">td_space</span><span class="p">[</span><span class="n">ti</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">evolution</span><span class="o">.</span><span class="n">spin</span><span class="p">)</span>
-            <span class="n">L</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-                <span class="nb">zip</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
-            <span class="p">)</span>
+            <span class="n">L</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))))</span>
             <span class="n">perms</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">permutations</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">count</span><span class="p">)))</span>
             <span class="n">full_copy</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">full</span><span class="p">)</span>
             <span class="n">full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">full_copy</span><span class="p">)</span>
@@ -385,9 +348,7 @@
                 <span class="p">)</span>
             <span class="n">full</span> <span class="o">=</span> <span class="n">full</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">full</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">dx</span><span class="o">**</span><span class="n">s</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
             <span class="n">spin_density_matrices</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">full</span><span class="p">,</span> <span class="n">full</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="n">tosum</span><span class="p">,</span> <span class="n">tosum</span><span class="p">))</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span>
-                    <span class="n">axis1</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis2</span><span class="o">=</span><span class="mi">3</span>
-                <span class="p">)</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">full</span><span class="p">,</span> <span class="n">full</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="n">tosum</span><span class="p">,</span> <span class="n">tosum</span><span class="p">))</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="n">axis1</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis2</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
                 <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">dx</span> <span class="o">**</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">count</span>
             <span class="p">)</span>
@@ -399,12 +360,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">p</span>
 
-    <span class="k">if</span> <span class="n">evolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">evolution</span><span class="p">)</span> <span class="o">==</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyEvolution</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">evolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">evolution</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyEvolution</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">time_indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">time_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">evolution</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-        <span class="n">up_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
-            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">time_indices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span>
-        <span class="p">)</span>
+        <span class="n">up_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">time_indices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">I</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">evolution</span><span class="o">.</span><span class="n">up</span><span class="o">.</span><span class="n">occupied</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ti</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">time_indices</span><span class="p">):</span>
                 <span class="n">up_p</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="p">(</span>
@@ -415,9 +374,7 @@
                     <span class="p">)</span>
                     <span class="o">*</span> <span class="n">evolution</span><span class="o">.</span><span class="n">up</span><span class="o">.</span><span class="n">occupations</span><span class="p">[</span><span class="n">I</span><span class="p">]</span>
                 <span class="p">)</span>
-        <span class="n">down_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
-            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">time_indices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span>
-        <span class="p">)</span>
+        <span class="n">down_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">time_indices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">I</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">evolution</span><span class="o">.</span><span class="n">down</span><span class="o">.</span><span class="n">occupied</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ti</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">time_indices</span><span class="p">):</span>
                 <span class="n">down_p</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="p">(</span>
@@ -435,15 +392,18 @@
             <span class="k">return</span> <span class="n">p</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;State or Evolution must be provided.&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">"State or Evolution must be provided."</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="kinetic_energy"><a class="viewcode-back" href="../../iDEA.html#iDEA.observables.kinetic_energy">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">kinetic_energy</span><span class="p">(</span>
+
+<div class="viewcode-block" id="kinetic_energy">
+<a class="viewcode-back" href="../../iDEA.html#iDEA.observables.kinetic_energy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">kinetic_energy</span><span class="p">(</span>
     <span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span>
     <span class="n">state</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyState</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">evolution</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyEvolution</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    Compute the kinetic energy of a non_interacting state.</span>
 
 <span class="sd">    | Args:</span>
@@ -453,29 +413,32 @@
 
 <span class="sd">    | Returns:</span>
 <span class="sd">    |     E_k: float or np.ndarray, Kinetic energy, or evolution of kinetic energy.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">==</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyState</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyState</span><span class="p">):</span>
         <span class="n">K</span> <span class="o">=</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">interacting</span><span class="o">.</span><span class="n">kinetic_energy_operator</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">observable</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">==</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyState</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyState</span><span class="p">):</span>
         <span class="n">K</span> <span class="o">=</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">non_interacting</span><span class="o">.</span><span class="n">kinetic_energy_operator</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">observable</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">evolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">evolution</span><span class="p">)</span> <span class="o">==</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">evolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">evolution</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span><span class="p">):</span>
         <span class="n">K</span> <span class="o">=</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">interacting</span><span class="o">.</span><span class="n">kinetic_energy_operator</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">observable</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">evolution</span><span class="o">=</span><span class="n">evolution</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">evolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">evolution</span><span class="p">)</span> <span class="o">==</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyEvolution</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">evolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">evolution</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyEvolution</span><span class="p">):</span>
         <span class="n">K</span> <span class="o">=</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">non_interacting</span><span class="o">.</span><span class="n">kinetic_energy_operator</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">observable</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">evolution</span><span class="o">=</span><span class="n">evolution</span><span class="p">)</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;State or Evolution must be provided.&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">"State or Evolution must be provided."</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="external_potential"><a class="viewcode-back" href="../../iDEA.html#iDEA.observables.external_potential">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">external_potential</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="external_potential">
+<a class="viewcode-back" href="../../iDEA.html#iDEA.observables.external_potential">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">external_potential</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    Compute the external potential.</span>
 
 <span class="sd">    | Args:</span>
@@ -483,14 +446,15 @@
 
 <span class="sd">    | Returns:</span>
 <span class="sd">    |     v_ext: np.ndarray, External potential of the system.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">v_ext</span></div>
 
 
-<div class="viewcode-block" id="external_energy"><a class="viewcode-back" href="../../iDEA.html#iDEA.observables.external_energy">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">external_energy</span><span class="p">(</span>
-    <span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">v_ext</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="external_energy">
+<a class="viewcode-back" href="../../iDEA.html#iDEA.observables.external_energy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">external_energy</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">v_ext</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    Compute the external energy from a density and external potential.</span>
 
 <span class="sd">    Args:</span>
@@ -500,7 +464,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">    |     E_ext: float or np.ndarray, External energy, or evolution of external energy.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">E_ext</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">v_ext</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">dx</span>
         <span class="k">return</span> <span class="n">E_ext</span>
@@ -512,11 +476,14 @@
         <span class="k">return</span> <span class="n">E_ext</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected array of shape 1 or 2, got </span><span class="si">{</span><span class="n">n</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> instead.&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Expected array of shape 1 or 2, got </span><span class="si">{</span><span class="n">n</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> instead."</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="hartree_potential"><a class="viewcode-back" href="../../iDEA.html#iDEA.observables.hartree_potential">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">hartree_potential</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="hartree_potential">
+<a class="viewcode-back" href="../../iDEA.html#iDEA.observables.hartree_potential">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hartree_potential</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    Compute the Hartree potential from a density.</span>
 
 <span class="sd">    | Args:</span>
@@ -525,7 +492,7 @@
 
 <span class="sd">    | Returns:</span>
 <span class="sd">    |     v_h: np.ndarray, Hartree potential, or evolution of Hartree potential.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">v_h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">v_int</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">dx</span>
         <span class="k">return</span> <span class="n">v_h</span>
@@ -537,13 +504,14 @@
         <span class="k">return</span> <span class="n">v_h</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected array of shape 1 or 2, got </span><span class="si">{</span><span class="n">n</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> instead.&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Expected array of shape 1 or 2, got </span><span class="si">{</span><span class="n">n</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> instead."</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="hartree_energy"><a class="viewcode-back" href="../../iDEA.html#iDEA.observables.hartree_energy">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">hartree_energy</span><span class="p">(</span>
-    <span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">v_h</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="hartree_energy">
+<a class="viewcode-back" href="../../iDEA.html#iDEA.observables.hartree_energy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hartree_energy</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">v_h</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    Compute the Hartree energy from a density and Hartree potential.</span>
 
 <span class="sd">    | Args:</span>
@@ -554,7 +522,7 @@
 
 <span class="sd">    | Returns:</span>
 <span class="sd">    |     E_h: float or np.ndarray, Hartree energy, or evolution of Hartree energy.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">E_h</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">v_h</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">dx</span>
         <span class="k">return</span> <span class="n">E_h</span>
@@ -566,11 +534,14 @@
         <span class="k">return</span> <span class="n">E_h</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected array of shape 1 or 2, got </span><span class="si">{</span><span class="n">n</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> instead.&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Expected array of shape 1 or 2, got </span><span class="si">{</span><span class="n">n</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> instead."</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="exchange_potential"><a class="viewcode-back" href="../../iDEA.html#iDEA.observables.exchange_potential">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">exchange_potential</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="exchange_potential">
+<a class="viewcode-back" href="../../iDEA.html#iDEA.observables.exchange_potential">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">exchange_potential</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    Compute the exchange potential from a density matrix.</span>
 
 <span class="sd">    | Args:</span>
@@ -579,7 +550,7 @@
 
 <span class="sd">    | Returns:</span>
 <span class="sd">    |     v_x: np.ndarray, Exchange potential, or evolution of exchange potential.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="n">v_x</span> <span class="o">=</span> <span class="o">-</span><span class="n">p</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">v_int</span>
         <span class="k">return</span> <span class="n">v_x</span>
@@ -591,13 +562,14 @@
         <span class="k">return</span> <span class="n">v_x</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected array of shape 1 or 2, got </span><span class="si">{</span><span class="n">n</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> instead.&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Expected array of shape 2 or 3, got </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> instead."</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="exchange_energy"><a class="viewcode-back" href="../../iDEA.html#iDEA.observables.exchange_energy">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">exchange_energy</span><span class="p">(</span>
-    <span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">v_x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="exchange_energy">
+<a class="viewcode-back" href="../../iDEA.html#iDEA.observables.exchange_energy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">exchange_energy</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">v_x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    Compute the exchange energy from a density matrix and exchange potential.</span>
 
 <span class="sd">    | Args:</span>
@@ -607,7 +579,7 @@
 
 <span class="sd">    | Returns:</span>
 <span class="sd">    |     E_x: float or np.ndarray, Exchange energy, or evolution of exchange energy.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="n">E_x</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">v_x</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">dx</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">dx</span>
         <span class="k">return</span> <span class="n">E_x</span>
@@ -615,19 +587,18 @@
     <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
         <span class="n">E_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">E_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-            <span class="n">E_x</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">v_x</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">axes</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">dx</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">dx</span>
-            <span class="p">)</span>
+            <span class="n">E_x</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">v_x</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">axes</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">dx</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">dx</span>
         <span class="k">return</span> <span class="n">E_x</span><span class="o">.</span><span class="n">real</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected array of shape 1 or 2, got </span><span class="si">{</span><span class="n">n</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> instead.&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Expected array of shape 3 or 3, got </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> instead."</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="single_particle_energy"><a class="viewcode-back" href="../../iDEA.html#iDEA.observables.single_particle_energy">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">single_particle_energy</span><span class="p">(</span>
-    <span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyState</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="single_particle_energy">
+<a class="viewcode-back" href="../../iDEA.html#iDEA.observables.single_particle_energy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">single_particle_energy</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    Compute the single particle energy of a single particle state.</span>
 
 <span class="sd">    | Args:</span>
@@ -636,22 +607,20 @@
 
 <span class="sd">    | Returns:</span>
 <span class="sd">    |     E: float, Single particle energy.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">up</span><span class="o">.</span><span class="n">energies</span><span class="p">[:]</span> <span class="o">*</span> <span class="n">state</span><span class="o">.</span><span class="n">up</span><span class="o">.</span><span class="n">occupations</span><span class="p">[:])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
         <span class="n">state</span><span class="o">.</span><span class="n">down</span><span class="o">.</span><span class="n">energies</span><span class="p">[:]</span> <span class="o">*</span> <span class="n">state</span><span class="o">.</span><span class="n">down</span><span class="o">.</span><span class="n">occupations</span><span class="p">[:]</span>
     <span class="p">)</span></div>
 
 
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_placeholder</span><span class="p">(</span>
     <span class="n">s</span><span class="p">:</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">System</span><span class="p">,</span>
     <span class="n">state</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyState</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyState</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">evolution</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
-        <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyEvolution</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span>
-    <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">evolution</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyEvolution</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">return_spins</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    Placeholer function. Use this as a template when constructing observable methods.</span>
 
 <span class="sd">    | Args:</span>
@@ -662,17 +631,17 @@
 
 <span class="sd">    | Returns:</span>
 <span class="sd">    |     observable: float or np.ndarray, Placeholer.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">==</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyState</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyState</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">==</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyState</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyState</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">evolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">evolution</span><span class="p">)</span> <span class="o">==</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyEvolution</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">evolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">evolution</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">SingleBodyEvolution</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">evolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">evolution</span><span class="p">)</span> <span class="o">==</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">evolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">evolution</span><span class="p">,</span> <span class="n">iDEA</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ManyBodyEvolution</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;State or Evolution must be provided.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">"State or Evolution must be provided."</span><span class="p">)</span>
 </pre></div>
 
            </div>

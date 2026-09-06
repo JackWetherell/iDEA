@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "iDEA-latest"
-version = "1.0.3"
+version = "1.1.0"
 description = "interacting Dynamic Electrons Approach"
 readme = "README.md"
 classifiers = [
@@ -48,7 +48,7 @@ gpu = [
 "Bug Tracker" = "https://github.com/iDEA-org/iDEA/issues"
 
 [tool.setuptools]
-packages.find = {}
+packages.find = {include = ["iDEA*"]}
 package-dir = {"" = "."}
 
 [tool.ruff]
