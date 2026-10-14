@@ -217,10 +217,12 @@ def validation():
             "compared with the separated centre-of-mass/relative-coordinate reference "
             "on the same grid: absolute energy error, maximum density error and "
             "wavefunction infidelity $1-|\\langle\\Psi_\\mathrm{ref}|\\Psi\\rangle|$. "
-            "(b) Lowest dipole excitation energy versus the harmonic-potential theorem, "
-            "and the time-dependent density error over 500 steps. "
+            "(b) Kohn-mode excitation energy (two \\texttt{uu} electrons, $\\omega=0.25$, $N_x=151$, $L=20$); "
+            "density error of a single electron oscillating in a harmonic well over 500 steps; and the "
+            "centre-of-mass error of two \\texttt{uu} electrons ($\\omega=0.25$, $N_x=101$, $L=20$) driven by "
+            "$\\delta v=0.02\\sin(0.4t)\\,x$ for $0\\le t\\le30$, against the harmonic-potential theorem. "
             "(c) Grid convergence of the ground-state energy of the atom in Fig.~\\ref{fig:gs}. "
-            f"(d) Wall time of \\texttt{{interacting.solve}} on {ncpu} CPU cores of the test machine.}}\n"
+            f"(d) Wall time of \\texttt{{interacting.solve}} on {ncpu} cores of an Intel Xeon (2.8~GHz).}}\n"
         )
         f.write("\\label{tab:validation}\n\\begin{tabular}{@{}lll@{}}\n\\toprule\n")
         f.write("\\multicolumn{3}{@{}l}{(a) Two-electron ground state} \\\\\n")
@@ -299,7 +301,7 @@ def fig1():
     axes[1].set_ylabel(r"$n(x)-n_\mathrm{exact}(x)$")
     axes[1].set_xlabel(r"$x$ (a.u.)")
     axes[0].set_xlim(-8, 8)
-    axes[0].legend(loc="upper left", ncol=1, handlelength=2.6)
+    axes[0].legend(loc="upper right", ncol=1, handlelength=2.2, fontsize=6, borderaxespad=0.2)
     for ax, lab in zip(axes, "ab"):
         ax.set_title(f"({lab})", loc="left", fontsize=8, pad=2)
     fig.align_ylabels(axes)
@@ -366,6 +368,8 @@ def fig2():
     ax.plot(s.x, s.v_ext, color="0.55", lw=1.0, ls=(0, (4, 1.5)), label=r"$v_\mathrm{ext}$")
     ax.plot(s.x, mask(v_ks1, n1), color="black", lw=1.6, label=r"$v_\mathrm{KS}$ (exact)")
     ax.plot(s.x, mask(v_xc1, n1), color="#2a78d6", lw=1.4, label=r"$v_\mathrm{xc}$ (exact)")
+    asym = np.where(np.abs(s.x) > 3.0, -1.0 / (np.abs(s.x) + 1.0), np.nan)  # asymptotic form, away from the atom
+    ax.plot(s.x, asym, color="#2a78d6", lw=0.8, ls=(0, (1, 1.5)), label=r"$-1/(|x|+1)$")
     ax.plot(s.x, d["v_xc_lda"], color="#eda100", ls=(0, (6, 1.5, 1, 1.5)), label=r"$v_\mathrm{xc}^\mathrm{LDA}[n]$")
     ax.set_ylabel("potential (Ha)")
     ax.legend(loc="lower right", handlelength=2.6)
