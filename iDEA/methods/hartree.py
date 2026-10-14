@@ -80,7 +80,7 @@ def total_energy(s: iDEA.system.System, state: iDEA.state.SingleBodyState) -> fl
     E = iDEA.observables.single_particle_energy(s, state)
     n = iDEA.observables.density(s, state)
     v_h = iDEA.observables.hartree_potential(s, n)
-    E -= 0.5 * iDEA.observables.hartree_energy(s, n, v_h)
+    E -= iDEA.observables.hartree_energy(s, n, v_h)
     return E
 
 
