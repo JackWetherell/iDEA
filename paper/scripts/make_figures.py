@@ -36,7 +36,7 @@ EXACT = dict(color="black", lw=1.6, ls="-", label="Exact")
 METHOD_STYLE = {
     "non_interacting": dict(color="#2a78d6", ls=(0, (1, 1.2)), label="Non-interacting"),
     "hartree": dict(color="#eb6834", ls=(0, (4, 1.5)), label="Hartree"),
-    "hartree_fock": dict(color="#1baf7a", ls="-", label="Hartree-Fock"),
+    "hartree_fock": dict(color="#1baf7a", ls="-", label="Hartree–Fock"),
     "lda": dict(color="#eda100", ls=(0, (6, 1.5, 1, 1.5)), label="LDA"),
     "hybrid": dict(color="#e87ba4", ls=(0, (2.5, 1.2)), label=r"Hybrid ($\alpha=0.8$)"),
 }
@@ -369,7 +369,7 @@ def fig2():
     ax.plot(s.x, mask(v_ks1, n1), color="black", lw=1.6, label=r"$v_\mathrm{KS}$ (exact)")
     ax.plot(s.x, mask(v_xc1, n1), color="#2a78d6", lw=1.4, label=r"$v_\mathrm{xc}$ (exact)")
     asym = np.where(np.abs(s.x) > 3.0, -1.0 / (np.abs(s.x) + 1.0), np.nan)  # asymptotic form, away from the atom
-    ax.plot(s.x, asym, color="#2a78d6", lw=0.8, ls=(0, (1, 1.5)), label=r"$-1/(|x|+1)$")
+    ax.plot(s.x, asym, color="0.35", lw=1.0, ls=(0, (1, 1.2)), label=r"$-1/(|x|+1)$")
     ax.plot(s.x, d["v_xc_lda"], color="#eda100", ls=(0, (6, 1.5, 1, 1.5)), label=r"$v_\mathrm{xc}^\mathrm{LDA}[n]$")
     ax.set_ylabel("potential (Ha)")
     ax.legend(loc="lower right", handlelength=2.6)
