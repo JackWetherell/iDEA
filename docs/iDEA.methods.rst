@@ -52,6 +52,14 @@ iDEA.methods.lda module
    :show-inheritance:
    :undoc-members:
 
+iDEA.methods.mbpt module
+------------------------
+
+.. automodule:: iDEA.methods.mbpt
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 iDEA.methods.non\_interacting module
 ------------------------------------
 

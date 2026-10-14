@@ -2,7 +2,7 @@ iDEA:
     utilities: Container, ArrayPlaceholder, Experiment, save_experiment, load_experiment.
     interactions: softened_interaction, softened_interaction_alternative, raw_interaction.
     system: System, save_system, load_system, systems.
-    state: State, ManyBodyState, SingleBodyState, Evolution, ManyBodyEvolution, SingleBodyEvolution.
+    state: State, ManyBodyState, SingleBodyState, QuasiParticleState, Evolution, ManyBodyEvolution, SingleBodyEvolution.
     observables: observable, density, density_matrix, kinetic_energy, external_potential, external_energy, hartree_potential, hartree_energy, exchange_potential, exchange_energy, single_particle_energy.
     methods:
         interacting: kinetic_energy_operator, external_potential_operator, hamiltionian, total_energy, antisymmetrize, solve, propagate_step, propagate.
@@ -12,4 +12,5 @@ iDEA:
         lda: xc_potential_operator, hamiltionian, total_energy, solve, propagate.
         hybrid: hamiltionian, total_energy, solve, propagate.
         kssce: interpolate_n, interpolate_invNe, interpolate_vsce, compute_comotion_functions, sce_potential_operator, sce_energy, hamiltonian, total_energy, solve, propagate
+        mbpt: SpaceTimeGrid, non_interacting_green_function, polarisability, screened_interaction, exchange_self_energy, correlation_self_energy, dyson_equation, quasiparticle_states, total_energy, solve.
     reverse_engineering: reverse, reverse_propagation.
