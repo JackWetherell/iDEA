@@ -16,6 +16,8 @@ infidelity & $5.8\times10^{-15}$ & $3.7\times10^{-14}$ \\
 \multicolumn{3}{@{}l}{(b) Excitations and dynamics} \\
 $E_1-E_0$ vs $\omega=0.25$ & 0.25000004 & error $4.0\times10^{-8}$ \\
 TD density, $\max|\Delta n(x,t)|$ & $2.0\times10^{-13}$ & \\
+driven HPT, $\max|\Delta x_\mathrm{cm}|$, $\delta t=0.05$ & $4.0\times10^{-3}$ & (amplitude 0.53) \\
+\quad $\delta t=0.025$ & $2.0\times10^{-3}$ & \\
 \midrule
 \multicolumn{3}{@{}l}{(c) Grid convergence, atom (\texttt{uu})} \\
 $\delta x=0.200$ & $E=-1.34519$ & \\
@@ -23,14 +25,10 @@ $\delta x=0.133$ & $E=-1.34131$ & \\
 $\delta x=0.100$ & $E=-1.33995$ & \\
 \midrule
 \multicolumn{3}{@{}l}{(d) Ground-state solve time} \\
-$N=2$, $N_x=60$ & 0.2~s & \\
-$N=2$, $N_x=100$ & 1.4~s & \\
-$N=2$, $N_x=140$ & 3.4~s & \\
-$N=2$, $N_x=180$ & 9.7~s & \\
-$N=2$, $N_x=220$ & 21.5~s & \\
-$N=3$, $N_x=20$ & 1.1~s & \\
-$N=3$, $N_x=30$ & 6.9~s & \\
-$N=3$, $N_x=40$ & 19.7~s & \\
+$N=2$: $N_x$ & \multicolumn{2}{l}{60, 100, 140, 180, 220} \\
+\quad time (s) & \multicolumn{2}{l}{0.2, 1.4, 3.4, 9.7, 21.5} \\
+$N=3$: $N_x$ & \multicolumn{2}{l}{20, 30, 40} \\
+\quad time (s) & \multicolumn{2}{l}{1.1, 6.9, 19.7} \\
 \bottomrule
 \end{tabular}
 \end{table}
