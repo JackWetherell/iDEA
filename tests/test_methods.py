@@ -69,3 +69,24 @@ def test_reverse_engineering_round_trip(atom):
     mask = n > 1e-3
     dv = s_fict.v_ext[mask] - atom.v_ext[mask]
     assert np.max(np.abs(dv - np.mean(dv))) < 1e-2
+
+
+def kssce_system(num_points):
+    x = np.linspace(-10, 10, num_points)
+    s = iDEA.system.System(x, 0.5 * 0.25**2 * x**2, iDEA.interactions.softened_interaction(x), electrons="uu")
+    s.interaction = lambda r: 1.0 / (np.abs(r) + 1.0)
+    s.dinteraction = lambda r: -np.sign(r) / (np.abs(r) + 1.0) ** 2
+    s.ddinteraction = lambda r: 2.0 / (np.abs(r) + 1.0) ** 3
+    return s
+
+
+def test_kssce_potential_gauge_and_energy():
+    s = kssce_system(200)
+    state = iDEA.methods.kssce.solve(s, tol=1e-9, silent=True)
+    n = iDEA.observables.density(s, state)
+    v_sce = np.diag(iDEA.methods.kssce.sce_potential_operator(s, n))
+    E_sce = iDEA.methods.kssce.sce_energy(s, n)
+    # The constant in v_sce is fixed by E_sce = int v_sce n dx, so E = sum of eigenvalues.
+    assert np.sum(v_sce * n) * s.dx == pytest.approx(E_sce, abs=1e-10)
+    energy = iDEA.methods.kssce.total_energy(s, state)
+    assert energy == pytest.approx(iDEA.observables.single_particle_energy(s, state), abs=1e-10)

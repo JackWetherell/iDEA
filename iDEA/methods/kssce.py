@@ -203,7 +203,7 @@ def sce_potential_operator(
         E_sce = 1 / 2 * interpolate_n(s.x, n * np.sum(w, axis=0)).integrate(s.x[0], s.x[-1])
 
         # Fix the arbitrary potential in v_sce by demanding E_sce = int v_sce(x) n(x) dx
-        v_sce = v_sce + E_sce / s.count * s.dx - np.sum(v_sce * n) / s.count * s.dx
+        v_sce = v_sce + (E_sce - np.sum(v_sce * n) * s.dx) / s.count
         return np.diag(v_sce)
 
 
@@ -285,7 +285,10 @@ def total_energy(
     """
     E = iDEA.observables.single_particle_energy(s, state)
     n = iDEA.observables.density(s, state)
-    E += sce_energy(s, n, method_params)
+    # Remove the SCE potential energy counted in the eigenvalues and add the SCE energy; this is
+    # independent of the constant chosen for v_sce.
+    v_sce = np.diag(sce_potential_operator(s, n, method_params))
+    E += sce_energy(s, n, method_params) - np.sum(v_sce * n) * s.dx
     return E
 
 
