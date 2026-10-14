@@ -54,7 +54,8 @@ def hamiltonian(
     if Vext is None:
         Vext = external_potential_operator(s)
     Vh = hartree_potential_operator(s, up_n + down_n)
-    Vx = exchange_potential_operator(s, up_p + down_p)
+    # Restricted (spin-averaged) exchange acts on electrons of one spin, i.e. uses the per-spin density matrix.
+    Vx = exchange_potential_operator(s, 0.5 * (up_p + down_p))
     up_Vx = exchange_potential_operator(s, up_p)
     down_Vx = exchange_potential_operator(s, down_p)
     Vxc = exchange_correlation_potential_operator(s, up_n + down_n)

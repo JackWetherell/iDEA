@@ -51,6 +51,14 @@ def test_hartree_fock_two_electron_singlet(atom):
     assert E_x == pytest.approx(-0.5 * E_h, rel=1e-8)
 
 
+@pytest.mark.parametrize("method", [iDEA.methods.hartree_fock, iDEA.methods.hybrid], ids=lambda m: m.name)
+def test_restricted_matches_unrestricted_for_closed_shell(atom, method):
+    # For a closed-shell singlet the restricted and unrestricted solutions coincide.
+    restricted = method.solve(atom, restricted=True, tol=1e-10, silent=True)
+    unrestricted = method.solve(atom, restricted=False, tol=1e-10, silent=True)
+    assert method.total_energy(atom, restricted) == pytest.approx(method.total_energy(atom, unrestricted), abs=1e-7)
+
+
 def test_reverse_engineering_round_trip(atom):
     state = iDEA.methods.non_interacting.solve(atom, silent=True)
     n = iDEA.observables.density(atom, state)
