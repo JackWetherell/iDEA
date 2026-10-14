@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+message: "If you use iDEA in your research, please cite it as below."
+title: "iDEA: interacting Dynamic Electrons Approach"
+version: 1.1.0
+date-released: 2026-09-06
+license: GPL-3.0-or-later
+repository-code: "https://github.com/JackWetherell/iDEA"
+url: "https://idea-org.github.io/"
+authors:
+  - family-names: Wetherell
+    given-names: Jack
+    affiliation: University of York
+  - family-names: Hodgson
+    given-names: Matt J. P.
+    affiliation: University of York
+  - family-names: Talirz
+    given-names: Leopold
+    affiliation: University of York
+  - family-names: Godby
+    given-names: Rex W.
+    affiliation: University of York
+keywords:
+  - density functional theory
+  - exact diagonalisation
+  - time-dependent DFT
+  - Kohn-Sham
+  - reverse engineering
+preferred-citation:
+  type: article
+  title: "iDEA: an open-source Python framework for exact many-electron quantum mechanics and density functional theory in one dimension"
+  journal: "Computer Physics Communications"
+  status: submitted
+  authors:
+    - family-names: Wetherell
+      given-names: Jack
+    - family-names: Hodgson
+      given-names: Matt J. P.
+    - family-names: Talirz
+      given-names: Leopold
+    - family-names: Godby
+      given-names: Rex W.
