@@ -34,7 +34,7 @@ def softened_interaction_alternative(x: np.ndarray, strength: float = 1.0, softe
     r"""
     Constructs the alternative softened interaction potential.
 
-    .. math:: v_\mathrm{int}(x,x') = \frac{s}{{(\sqrt{x-x'} + a)}^{2}}
+    .. math:: v_\mathrm{int}(x,x') = \frac{s}{\sqrt{(x-x')^{2} + a}}
 
     | Args:
     |     x: np.ndarray, x grid.

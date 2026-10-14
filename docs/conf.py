@@ -18,8 +18,8 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'iDEA'
-copyright = '2020, Jack Wetherell'
-author = 'Jack Wetherell, Leopold Tarlitz, Rex Godby, Matthew Hodgson.'
+copyright = '2020-2026, The iDEA Developers'
+author = 'Jack Wetherell, Leopold Talirz, Rex Godby, Matthew Hodgson.'
 
 # The full version, including alpha/beta/rc tags
 release = '1.1.0'

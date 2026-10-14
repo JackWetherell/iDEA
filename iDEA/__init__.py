@@ -14,6 +14,8 @@ import iDEA.methods.hybrid
 import iDEA.methods.kssce
 import iDEA.reverse_engineering
 
+__version__ = "1.1.0"
+
 __all__ = [
     "iDEA.utilities",
     "iDEA.system",
