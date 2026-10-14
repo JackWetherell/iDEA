@@ -56,6 +56,8 @@ ruff format iDEA/ tests/ benchmarking/
 
 To run unit tests: `pytest -v`
 
+The many-body perturbation theory tests in `tests/test_mbpt.py` check the GW implementation against results computed independently of its imaginary time and frequency grids (sums over states built from the random phase approximation, and brute-force frequency integration), as well as particle-number conservation and starting-point independence of self-consistent GW. They take about a minute.
+
 The GPU tests in `tests/test_gpu.py` check that the GPU and CPU produce the same results for interacting ground-state and time-dependent calculations. They are skipped automatically unless CuPy is installed (see [GPU Acceleration](#gpu-acceleration)). On an Intel i9 / RTX 4090 these take roughly 26 minutes.
 
 ### Benchmarking
@@ -87,6 +89,7 @@ Some of iDEA's features:
     - Restricted and unrestricted Hartree-Fock
     - The Local Density Approximation (LDA)
     - Hybrid functionals
+    - Many-body perturbation theory in the GW approximation: one-shot (G0W0), partially self-consistent (GW0) and fully self-consistent (GW) (see [Many-Body Perturbation Theory](#many-body-perturbation-theory))
 - Implementation of all common observables.
 - Reverse-engineering to solve potential inversion, from exact Kohn-Sham DFT and beyond.
 - Fully parallelised using OpenBLAS.
@@ -139,6 +142,31 @@ A few things to be aware of:
 - The speedup grows with system size: the finer the grid and the more electrons, the more the GPU helps.
 
 You can measure the performance benefit on your own hardware using the scripts in the `benchmarking` directory — see [Benchmarking](#benchmarking).
+
+## Many-Body Perturbation Theory
+
+iDEA can solve Hedin's equations in the GW approximation to give the ground-state one-body Green's function $G$ of the interacting system, from which the charge density, self-energy and screened interaction follow:
+
+```python
+import iDEA
+
+system = iDEA.system.systems.atom
+
+# Fully self-consistent GW, starting from Hartree-Fock.
+state = iDEA.methods.mbpt.solve(system)
+
+# One-shot G0W0 (or partially self-consistent GW0) from a chosen starting point.
+state = iDEA.methods.mbpt.solve(system, mode="G0W0", initial="lda")
+
+n = iDEA.observables.density(system, state=state)  # n(x) = G(x,x;tau=0^-)
+E = state.energy                                    # Galitskii-Migdal total energy
+```
+
+The returned `iDEA.state.QuasiParticleState` contains everything computed along the way, on the real-space grid and on imaginary time (`state.tau`) and imaginary frequency (`state.omega`) grids. For each spin channel (`state.up`, `state.down`) it holds the Green's function `G` / `G_iw`, the starting-point Green's function `G0` / `G0_iw`, and the exchange `sigma_x`, correlation `sigma_c` / `sigma_c_iw`, exchange-correlation `sigma_xc_iw` and total `sigma_iw` self-energies. It also holds the polarisability `state.P` / `state.P_iw` and the screened interaction `state.W_iw` (with its correlation part `state.W_c` / `state.W_c_iw`). `state.grid` provides the Fourier transforms between imaginary time and frequency, and interpolation to any imaginary time or frequency.
+
+The implementation follows the GW space-time method of Rojas, Godby and Needs: polarisabilities and self-energies are formed in real space and imaginary time, while the screened interaction and Dyson's equation are solved on the imaginary frequency axis. Instead of uniform grids, which need a time step smaller than the inverse of the largest single-particle energy on the real-space grid, it uses imaginary time and frequency grids optimised for decaying exponentials. Each grid holds roughly 50–100 points, and the Fourier transforms between them are accurate to about $10^{-10}$. The chemical potential is kept in the centre of the quasiparticle gap with the Hedin shift, as in the original iDEA code; this does not change self-consistent (GW and GW0) results. Each building block of Hedin's equations is also available on its own: `non_interacting_green_function`, `polarisability`, `screened_interaction`, `exchange_self_energy`, `correlation_self_energy` and `dyson_equation`.
+
+A worked example, which compares GW with exact and Hartree-Fock results and steps through Hedin's equations one at a time, is given in [tutorial/example_mbpt.ipynb](tutorial/example_mbpt.ipynb).
 
 ## Tutorial
 
