@@ -46,6 +46,12 @@ dev = [
 gpu = [
     "cupy-cuda13x>=13.0.0",
 ]
+mcp = [
+    "mcp>=1.3",
+]
+
+[project.scripts]
+idea-mcp = "iDEA.mcp_server:main"
 
 [project.urls]
 "Home page" = "https://idea-org.github.io/"
