@@ -4,7 +4,6 @@ import copy
 import functools
 import itertools
 import string
-from typing import Union
 
 import numpy as np
 import scipy.sparse as sps
@@ -181,9 +180,9 @@ def antisymmetrize(s, spaces, spins, energies):
     # Perform antisymmetrization.
     l = string.ascii_lowercase[: s.count]
     L = string.ascii_uppercase[: s.count]
-    st = l + "Y," + L + "Y->" + "".join([i for sub in list(zip(l, L)) for i in sub]) + "Y"
+    st = l + "Y," + L + "Y->" + "".join([i for sub in list(zip(l, L, strict=True)) for i in sub]) + "Y"
     fulls = np.einsum(st, spaces, spins)
-    L = list(zip(list(range(0, s.count * 2, 2)), list(range(1, s.count * 2, 2))))
+    L = list(zip(list(range(0, s.count * 2, 2)), list(range(1, s.count * 2, 2)), strict=True))
     perms = itertools.permutations(list(range(s.count)))
     fulls_copy = copy.deepcopy(fulls)
     fulls = np.zeros_like(fulls)
@@ -248,7 +247,7 @@ def _estimate_level(s: iDEA.system.System, k: int) -> int:
 
 def solve(
     s: iDEA.system.System, H: np.ndarray = None, k: int = 0, level=None, GPU=False
-) -> Union[iDEA.state.ManyBodyState, iDEA.state.ManyBodyStates]:
+) -> iDEA.state.ManyBodyState | iDEA.state.ManyBodyStates:
     r"""
     Solves the interacting Schrodinger equation of the given system.
 

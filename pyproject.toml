@@ -9,6 +9,10 @@ description = "interacting Dynamic Electrons Approach"
 readme = "README.md"
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Operating System :: OS Independent",
 ]
 authors = [
@@ -18,7 +22,7 @@ authors = [
     {name = "Rex Godby", email = "rex.godby@york.ac.uk"},
 ]
 license = "GPL-3.0"
-requires-python = ">= 3.8"
+requires-python = ">= 3.10"
 dependencies = [
     "numpy>=1.22.3",
     "scipy>=1.8.0",
@@ -52,7 +56,7 @@ packages.find = {include = ["iDEA*"]}
 package-dir = {"" = "."}
 
 [tool.ruff]
-target-version = "py38"
+target-version = "py310"
 extend-exclude = ["*.ipynb"]
 line-length = 120
 

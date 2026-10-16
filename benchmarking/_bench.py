@@ -240,7 +240,7 @@ def summarise(sweep, cpu_times, gpu_times) -> None:
     """Print a small CPU/GPU comparison table once the sweep is done."""
     print()
     print(f"  {'N':>5} {'CPU (s)':>10} {'GPU (s)':>10} {'speedup':>9}")
-    for N, c, g in zip(sweep, cpu_times, gpu_times):
+    for N, c, g in zip(sweep, cpu_times, gpu_times, strict=True):
         speedup = "-" if np.isnan(c) or np.isnan(g) or g == 0 else f"{c / g:.1f}x"
         cs = "failed" if np.isnan(c) else f"{c:.2f}"
         gs = "skipped" if np.isnan(g) else f"{g:.2f}"
