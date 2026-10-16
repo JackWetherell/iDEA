@@ -41,7 +41,7 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-Install locally with dev dependencies: `pip install -e ".[dev]"`
+Install locally with dev dependencies: `pip install -e ".[dev]"` (add `mcp` for the MCP server: `pip install -e ".[dev,mcp]"`)
 
 ### Code Quality
 
@@ -140,6 +140,17 @@ A few things to be aware of:
 
 You can measure the performance benefit on your own hardware using the scripts in the `benchmarking` directory — see [Benchmarking](#benchmarking).
 
+## Use with AI Agents (MCP)
+
+iDEA ships a [Model Context Protocol](https://modelcontextprotocol.io) server so that AI agents such as Claude Code, Claude Desktop, Cursor or Codex can define systems, run exact and approximate calculations, reverse-engineer Kohn-Sham potentials and plot the results as part of their workflows:
+
+```
+pip install "iDEA-latest[mcp]"
+claude mcp add idea -- idea-mcp     # or add {"command": "idea-mcp"} to any MCP client's config
+```
+
+When Claude Code is opened in this repository the server is picked up automatically from `.mcp.json`. See [AGENTS.md](AGENTS.md) for the tool list, conventions and guidance for agents (Claude Code also reads it via [CLAUDE.md](CLAUDE.md)).
+
 ## Tutorial
 
 We provide a [tutorial](https://github.com/iDEA-org/iDEA/blob/master/tutorial/tutorial.ipynb) where you can learn how to use the iDEA code in your research and teaching projects.
@@ -184,7 +195,7 @@ To get involved:
 
 ## Dependencies
 
-iDEA supports `python 3.8+` along with the following dependences:
+iDEA supports `python 3.10+` along with the following dependences:
 ```
 numpy >= "1.22.3"
 scipy >= "1.8.0"
@@ -193,5 +204,7 @@ jupyterlab >= "3.3.2"
 tqdm >= "4.64.0"
 pytest >= "8.3.0"
 ```
+
+Optional extras: `pip install "iDEA-latest[gpu]"` for GPU acceleration (CuPy) and `pip install "iDEA-latest[mcp]"` for the MCP server (`mcp >= 1.3`).
 
 <img src="docs/logos.png" alt="" width="200"/>

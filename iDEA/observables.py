@@ -1,7 +1,6 @@
 import copy
 import itertools
 import string
-from typing import Union
 
 import numpy as np
 
@@ -14,10 +13,10 @@ import iDEA.system
 def observable(
     s: iDEA.system.System,
     observable_operator: np.ndarray,
-    state: Union[iDEA.state.SingleBodyState, iDEA.state.ManyBodyState] = None,
-    evolution: Union[iDEA.state.SingleBodyEvolution, iDEA.state.ManyBodyEvolution] = None,
+    state: iDEA.state.SingleBodyState | iDEA.state.ManyBodyState = None,
+    evolution: iDEA.state.SingleBodyEvolution | iDEA.state.ManyBodyEvolution = None,
     return_spins: bool = False,
-) -> Union[float, np.ndarray]:
+) -> float | np.ndarray:
     r"""
     Compute an observable based on a given operator and state or evolution.
 
@@ -99,8 +98,8 @@ def observable(
 
 def density(
     s: iDEA.system.System,
-    state: Union[iDEA.state.SingleBodyState, iDEA.state.ManyBodyState] = None,
-    evolution: Union[iDEA.state.SingleBodyEvolution, iDEA.state.ManyBodyEvolution] = None,
+    state: iDEA.state.SingleBodyState | iDEA.state.ManyBodyState = None,
+    evolution: iDEA.state.SingleBodyEvolution | iDEA.state.ManyBodyEvolution = None,
     time_indices: np.ndarray = None,
     return_spins: bool = False,
 ) -> np.ndarray:
@@ -150,9 +149,9 @@ def density(
         for j, ti in enumerate(time_indices):
             l = string.ascii_lowercase[: s.count]
             L = string.ascii_uppercase[: s.count]
-            st = l + "," + L + "->" + "".join([i for sub in list(zip(l, L)) for i in sub])
+            st = l + "," + L + "->" + "".join([i for sub in list(zip(l, L, strict=True)) for i in sub])
             full = np.einsum(st, evolution.td_space[ti, ...], evolution.spin)
-            L = list(zip(list(range(0, s.count * 2, 2)), list(range(1, s.count * 2, 2))))
+            L = list(zip(list(range(0, s.count * 2, 2)), list(range(1, s.count * 2, 2)), strict=True))
             perms = itertools.permutations(list(range(s.count)))
             full_copy = copy.deepcopy(full)
             full = np.zeros_like(full_copy)
@@ -196,8 +195,8 @@ def density(
 
 def density_matrix(
     s: iDEA.system.System,
-    state: Union[iDEA.state.SingleBodyState, iDEA.state.ManyBodyState] = None,
-    evolution: Union[iDEA.state.SingleBodyEvolution, iDEA.state.ManyBodyEvolution] = None,
+    state: iDEA.state.SingleBodyState | iDEA.state.ManyBodyState = None,
+    evolution: iDEA.state.SingleBodyEvolution | iDEA.state.ManyBodyEvolution = None,
     time_indices: np.ndarray = None,
     return_spins: bool = False,
 ) -> np.ndarray:
@@ -255,9 +254,9 @@ def density_matrix(
         for j, ti in enumerate(time_indices):
             l = string.ascii_lowercase[: s.count]
             L = string.ascii_uppercase[: s.count]
-            st = l + "," + L + "->" + "".join([i for sub in list(zip(l, L)) for i in sub])
+            st = l + "," + L + "->" + "".join([i for sub in list(zip(l, L, strict=True)) for i in sub])
             full = np.einsum(st, evolution.td_space[ti, ...], evolution.spin)
-            L = list(zip(list(range(0, s.count * 2, 2)), list(range(1, s.count * 2, 2))))
+            L = list(zip(list(range(0, s.count * 2, 2)), list(range(1, s.count * 2, 2)), strict=True))
             perms = itertools.permutations(list(range(s.count)))
             full_copy = copy.deepcopy(full)
             full = np.zeros_like(full_copy)
@@ -319,7 +318,7 @@ def kinetic_energy(
     s: iDEA.system.System,
     state: iDEA.state.SingleBodyState = None,
     evolution: iDEA.state.SingleBodyEvolution = None,
-) -> Union[float, np.ndarray]:
+) -> float | np.ndarray:
     r"""
     Compute the kinetic energy of a non_interacting state.
 
@@ -364,7 +363,7 @@ def external_potential(s: iDEA.system.System) -> np.ndarray:
     return s.v_ext
 
 
-def external_energy(s: iDEA.system.System, n: np.ndarray, v_ext: np.ndarray) -> Union[float, np.ndarray]:
+def external_energy(s: iDEA.system.System, n: np.ndarray, v_ext: np.ndarray) -> float | np.ndarray:
     r"""
     Compute the external energy from a density and external potential.
 
@@ -415,7 +414,7 @@ def hartree_potential(s: iDEA.system.System, n: np.ndarray) -> np.ndarray:
         raise AttributeError(f"Expected array of shape 1 or 2, got {n.shape} instead.")
 
 
-def hartree_energy(s: iDEA.system.System, n: np.ndarray, v_h: np.ndarray) -> Union[float, np.ndarray]:
+def hartree_energy(s: iDEA.system.System, n: np.ndarray, v_h: np.ndarray) -> float | np.ndarray:
     r"""
     Compute the Hartree energy from a density and Hartree potential.
 
@@ -467,7 +466,7 @@ def exchange_potential(s: iDEA.system.System, p: np.ndarray) -> np.ndarray:
         raise AttributeError(f"Expected array of shape 2 or 3, got {p.shape} instead.")
 
 
-def exchange_energy(s: iDEA.system.System, p: np.ndarray, v_x: np.ndarray) -> Union[float, np.ndarray]:
+def exchange_energy(s: iDEA.system.System, p: np.ndarray, v_x: np.ndarray) -> float | np.ndarray:
     r"""
     Compute the exchange energy from a density matrix and exchange potential.
 
@@ -511,10 +510,10 @@ def single_particle_energy(s: iDEA.system.System, state: iDEA.state.SingleBodySt
 
 def _placeholder(
     s: iDEA.system.System,
-    state: Union[iDEA.state.SingleBodyState, iDEA.state.ManyBodyState] = None,
-    evolution: Union[iDEA.state.SingleBodyEvolution, iDEA.state.ManyBodyEvolution] = None,
+    state: iDEA.state.SingleBodyState | iDEA.state.ManyBodyState = None,
+    evolution: iDEA.state.SingleBodyEvolution | iDEA.state.ManyBodyEvolution = None,
     return_spins: bool = False,
-) -> Union[float, np.ndarray]:
+) -> float | np.ndarray:
     r"""
     Placeholer function. Use this as a template when constructing observable methods.
 

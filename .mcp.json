@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "idea": {
+      "command": "python",
+      "args": ["-m", "iDEA.mcp_server"]
+    }
+  }
+}

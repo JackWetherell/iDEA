@@ -9,7 +9,6 @@ References:
 """
 
 from functools import partial
-from typing import Dict
 
 import numpy as np
 import scipy
@@ -139,7 +138,7 @@ def compute_comotion_functions(
 def sce_potential_operator(
     s: iDEA.system.System,
     n: np.ndarray,
-    method_params: Dict[str, str] = default_params,
+    method_params: dict[str, str] = default_params,
 ) -> np.ndarray:
     r"""
     Compute the SCE potential operator V_SCE, which is diag(v_sce(x)).
@@ -210,7 +209,7 @@ def sce_potential_operator(
 def sce_energy(
     s: iDEA.system.System,
     n: np.ndarray,
-    method_params: Dict[str, str] = default_params,
+    method_params: dict[str, str] = default_params,
 ) -> float:
     r"""
     Compute the SCE energy.
@@ -242,7 +241,7 @@ def hamiltonian(
     down_p: np.ndarray,
     K: np.ndarray = None,
     Vext: np.ndarray = None,
-    method_params: Dict[str, str] = default_params,
+    method_params: dict[str, str] = default_params,
 ) -> np.ndarray:
     r"""
     Compute the Hamiltonian from the kinetic and potential terms.
@@ -271,7 +270,7 @@ def hamiltonian(
 def total_energy(
     s: iDEA.system.System,
     state: iDEA.state.SingleBodyState,
-    method_params: Dict[str, str] = default_params,
+    method_params: dict[str, str] = default_params,
 ) -> float:
     r"""
     Compute the total energy.
@@ -297,7 +296,7 @@ def solve(
     tol: float = 1e-10,
     initial: tuple = None,
     silent: bool = False,
-    method_params: Dict[str, str] = default_params,
+    method_params: dict[str, str] = default_params,
 ) -> iDEA.state.SingleBodyState:
     r"""
     Solves the Schrodinger equation for the given system.
@@ -333,7 +332,7 @@ def propagate(
     v_ptrb: np.ndarray,
     t: np.ndarray,
     restricted: bool = False,
-    method_params: Dict[str, str] = default_params,
+    method_params: dict[str, str] = default_params,
 ) -> iDEA.state.SingleBodyEvolution:
     r"""
     Propagate a set of orbitals forward in time due to a dynamic local pertubation.
