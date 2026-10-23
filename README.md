@@ -56,7 +56,7 @@ ruff format iDEA/ tests/ benchmarking/
 
 To run unit tests: `pytest -v`
 
-The GPU tests in `tests/test_gpu.py` check that the GPU and CPU produce the same results for interacting ground-state and time-dependent calculations. They are skipped automatically unless CuPy is installed (see [GPU Acceleration](#gpu-acceleration)). On an Intel i9 / RTX 4090 these take roughly 26 minutes.
+The GPU tests in `tests/test_gpu.py` check that the GPU and CPU produce the same results for interacting ground-state and time-dependent calculations. They are skipped automatically unless CuPy is installed (see [GPU Acceleration](#gpu-acceleration)). On an Intel i9 / RTX 4090 these take roughly 26 minutes. The Crank-Nicolson GPU tests are also skipped unless nvmath-python is installed; `tests/test_crank_nicolson.py` checks the same propagator on the CPU and needs no GPU.
 
 ### Benchmarking
 
@@ -65,11 +65,14 @@ The `benchmarking` directory contains scripts that measure how the exact interac
 ```
 python benchmarking/gpu.py      # ground state, grid sizes 50-450
 python benchmarking/gpu_td.py   # time-dependent propagation, grid sizes 50-300
+python benchmarking/gpu_cn.py   # Crank-Nicolson (cuDSS) vs exponential propagation, grid sizes 50-400 and a dt sweep
 ```
 
 Each script detects your CPU and GPU, prints them along with an estimated runtime calibrated on your machine, and then writes a plot of wall-clock time and peak memory against grid size to `benchmarking/gpu_scaling.png` and `benchmarking/gpu_td_scaling.png` respectively.
 
 On an Intel i9 / RTX 4090 these take roughly 11 minutes and 2 minutes. Most of that is the CPU points, whose cost grows steeply with grid size — the GPU sweep is a small fraction of the total. Without CuPy installed both scripts still run, recording the CPU points and skipping the GPU ones.
+
+`gpu_cn.py` compares the four propagators (CPU and GPU, exponential and Crank-Nicolson). It writes `benchmarking/gpu_cn_scaling.png` (total time, time per step, one-off factorisation time, peak memory, accuracy and speedup against grid size) and `benchmarking/gpu_cn_dt.png` (accuracy and cost against time step), and prints how many steps the GPU Crank-Nicolson factorisation takes to pay for itself. It has no reference timings yet, so it does not print a runtime estimate.
 
 ## Documentation
 
@@ -131,10 +134,19 @@ ground_state = iDEA.methods.interacting.solve(system, k=0, GPU=True)
 evolution = iDEA.methods.interacting.propagate(system, ground_state, v_ptrb, t, GPU=True)
 ```
 
+For time propagation you can also choose the Crank-Nicolson method, which factorises the Hamiltonian once with NVIDIA's [cuDSS](https://developer.nvidia.com/cudss) sparse direct solver and reuses that factorisation for every time step, instead of applying the matrix exponential each step:
+
+```python
+evolution = iDEA.methods.interacting.propagate(system, ground_state, v_ptrb, t, GPU=True, method="cn")
+```
+
+Crank-Nicolson is unitary and second order in the time step, so it differs from the default `method="expm"` by O(dt²): halve `dt` and the difference falls by 4x. It also runs on the CPU (with SuperLU) via `GPU=False, method="cn"`.
+
 Everything else about your workflow stays the same — the results are returned as ordinary NumPy arrays, agree with the CPU implementation to machine precision, and all observables can be computed as usual. If you don't have a GPU, simply leave `GPU=False` (the default) and the calculation runs on the CPU.
 
 A few things to be aware of:
 - You will need an NVIDIA GPU with CUDA, and the [CuPy](https://docs.cupy.dev/en/stable/install.html) package installed. It is an optional dependency, so it is not installed by default — use `pip install -e ".[gpu]"` (or `pip install cupy-cudaxxx` directly, matching your CUDA version).
+- `method="cn"` on the GPU also needs [nvmath-python](https://docs.nvidia.com/cuda/nvmath-python/), which provides cuDSS. It is included in the `gpu` extra (Python 3.10 or later), or install it directly with `pip install "nvmath-python[cu13]"`.
 - The **approximate methods** (non-interacting, Hartree, Hartree-Fock, LDA, hybrids) run on the CPU only. This is by design: they work with small single-particle matrices for which a GPU offers no benefit — they are already fast.
 - The speedup grows with system size: the finer the grid and the more electrons, the more the GPU helps.
 

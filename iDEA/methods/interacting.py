@@ -424,6 +424,113 @@ def propagate_step(
     return evolution
 
 
+def _perturbation_diagonal(xp, v: np.ndarray, count: int):
+    r"""
+    Compute the diagonal of the many-body operator of a local single-particle potential, sum_i v(x_i).
+
+    Equivalent to the diagonal of the kron sum built in propagate_step, but formed by broadcasting.
+
+    | Args:
+    |     xp: module, Array module to compute with (numpy or cupy).
+    |     v: np.ndarray, Single-particle potential on the grid of x values.
+    |     count: int, Number of electrons.
+
+    | Returns:
+    |     V: xp.ndarray, Diagonal of the many-body operator, flattened to length x.shape[0]**count.
+    """
+    v = xp.asarray(v)
+    N = v.shape[0]
+    V = xp.zeros((N,) * count)
+    for i in range(count):
+        V = V + v.reshape((1,) * i + (N,) + (1,) * (count - i - 1))
+    return V.reshape(N**count)
+
+
+def _propagate_cn(
+    s: iDEA.system.System,
+    evolution: iDEA.state.ManyBodyEvolution,
+    H,
+    v_ptrb: np.ndarray,
+    t: np.ndarray,
+    GPU: bool = False,
+) -> iDEA.state.ManyBodyEvolution:
+    r"""
+    Propagate a many body state with the Crank-Nicolson method, Strang split with the local perturbation.
+
+    Each step applies psi_j = P_j (I + i dt/2 H)^-1 (I - i dt/2 H) P_j psi_j-1, where P_j = exp(-i dt/2 V_j) and V_j
+    is the (diagonal) many-body perturbation at time index j. As H is static, I + i dt/2 H is factorised once for the
+    whole propagation, even when v_ptrb varies in time, and every step costs one sparse mat-vec, one pair of
+    triangular solves and two elementwise phases. The scheme is unitary and second order in dt.
+
+    On the GPU the factorisation and solves use cuDSS (via nvmath-python), on the CPU they use SuperLU.
+
+    | Args:
+    |     s: iDEA.system.System, System object.
+    |     evolution: iDEA.state.ManyBodyEvolution, time-dependent evolution, with td_space[0] set to the initial state.
+    |     H: sparse matrix, Static Hamiltonian (cupyx.scipy.sparse if GPU, scipy.sparse otherwise).
+    |     v_ptrb: np.ndarray, Local perturbing potential on the grid of t and x values, indexed as v_ptrb[time,space].
+    |     t: np.ndarray, Grid of time values.
+    |     GPU: bool, Propagate on GPU using cuDSS. If false will use SuperLU on CPU. (default = False)
+
+    | Returns:
+    |     evolution: iDEA.state.ManyBodyEvolution, Solved time-dependent evolution.
+    """
+    if GPU:
+        import cupy as cp
+        import cupyx.scipy.sparse as csps
+
+        try:
+            from nvmath.sparse.advanced import DirectSolver
+        except ImportError as e:
+            raise ImportError(
+                "method='cn' on the GPU requires nvmath-python, which provides cuDSS: pip install -e '.[gpu]'"
+            ) from e
+
+        xp = cp
+        sp = csps
+        to_host = cp.asnumpy
+    else:
+        xp = np
+        sp = sps
+        to_host = np.asarray
+
+    # Construct the Crank-Nicolson matrices.
+    dt = t[1] - t[0]
+    n = s.x.shape[0] ** s.count
+    shape = (s.x.shape[0],) * s.count
+    H = sp.csr_matrix(H).astype(complex)
+    I = sp.identity(n, dtype=complex, format="csr")
+    A = sp.csr_matrix(I + 0.5j * dt * H)
+    B = sp.csr_matrix(I - 0.5j * dt * H)
+    A.sum_duplicates()
+
+    def evolve(solve):
+        wavefunction = xp.asarray(evolution.td_space[0, ...].reshape(n))
+        for j in tqdm(range(1, t.shape[0]), desc="iDEA.methods.interacting.propagate: propagating state"):
+            if j == 1 or not np.array_equal(v_ptrb[j, :], v_ptrb[j - 1, :]):
+                phase = xp.exp(-0.5j * dt * _perturbation_diagonal(xp, v_ptrb[j, :], s.count))
+            wavefunction = phase * solve(B @ (phase * wavefunction))
+            evolution.td_space[j, ...] = to_host(wavefunction).reshape(shape)
+
+    # Factorise A once, then propagate.
+    if GPU:
+        # cuDSS reads the right-hand side from rhs by reference, so it is updated in place each step.
+        rhs = cp.zeros(n, dtype=complex)
+        with DirectSolver(A, rhs) as solver:
+            solver.plan()
+            solver.factorize()
+
+            def solve(b):
+                rhs[...] = b
+                return solver.solve()
+
+            evolve(solve)
+    else:
+        evolve(spsla.splu(A.tocsc()).solve)
+
+    return evolution
+
+
 def propagate(
     s: iDEA.system.System,
     state: iDEA.state.ManyBodyState,
@@ -431,6 +538,7 @@ def propagate(
     t: np.ndarray,
     H: sps.dia_matrix = None,
     GPU: bool = False,
+    method: str = "expm",
 ) -> iDEA.state.ManyBodyEvolution:
     r"""
     Propagate a many body state forward in time due to a local pertubation.
@@ -442,10 +550,16 @@ def propagate(
     |     t: np.ndarray, Grid of time values.
     |     H: np.ndarray, Static Hamiltonian [If None this will be computed from s]. (default = None)
     |     GPU: bool, Propagate on GPU using cupy. If false will use scipy on CPU. (default = False)
+    |     method: str, Propagation method. "expm" applies the matrix exponential each time-step. "cn" uses the
+    |             Crank-Nicolson method, factorising once for the whole propagation (cuDSS on the GPU, SuperLU on the
+    |             CPU); it is unitary and second order in dt, so it differs from "expm" by O(dt^2). (default = "expm")
 
     | Returns:
     |     evolution: iDEA.state.ManyBodyEvolution, Solved time-dependent evolution.
     """
+    if method not in ("expm", "cn"):
+        raise ValueError(f'method must be one of ["expm", "cn"], got {method} instead.')
+
     # Construct the unperturbed Hamiltonian.
     if H is None:
         H = hamiltonian(s, GPU=GPU)
@@ -473,17 +587,20 @@ def propagate(
     evolution.td_space = np.zeros(shape=t.shape + state.space.shape, dtype=complex)
     evolution.td_space[0, ...] = copy.deepcopy(evolution.space)
 
-    # Construct objects needed to update potential.
-    I = sp.identity(s.x.shape[0], format=fmt)
-    partial_operators = lambda A, B, k, n: (A if i + k == n - 1 else B for i in range(n))
-    fold_partial_operators = lambda f, po: functools.reduce(lambda acc, val: f(val, acc, format=fmt), po)
-    generate_terms = lambda f, A, B, n: (fold_partial_operators(f, partial_operators(A, B, k, n)) for k in range(n))
-    objs = (I, generate_terms)
+    if method == "cn":
+        _propagate_cn(s, evolution, H, v_ptrb, t, GPU=GPU)
+    else:
+        # Construct objects needed to update potential.
+        I = sp.identity(s.x.shape[0], format=fmt)
+        partial_operators = lambda A, B, k, n: (A if i + k == n - 1 else B for i in range(n))
+        fold_partial_operators = lambda f, po: functools.reduce(lambda acc, val: f(val, acc, format=fmt), po)
+        generate_terms = lambda f, A, B, n: (fold_partial_operators(f, partial_operators(A, B, k, n)) for k in range(n))
+        objs = (I, generate_terms)
 
-    # Propagate.
-    for j, _ti in enumerate(tqdm(t, desc="iDEA.methods.interacting.propagate: propagating state")):
-        if j != 0:
-            propagate_step(s, evolution, H, v_ptrb, j, dt, objs, GPU=GPU)
+        # Propagate.
+        for j, _ti in enumerate(tqdm(t, desc="iDEA.methods.interacting.propagate: propagating state")):
+            if j != 0:
+                propagate_step(s, evolution, H, v_ptrb, j, dt, objs, GPU=GPU)
 
     # Populate the many-body time-dependent evolution.
     evolution.v_ptrb = v_ptrb

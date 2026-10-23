@@ -10,8 +10,13 @@ that each of them produces the same answer on the GPU as it does on the CPU.
 The approximate methods (non-interacting, Hartree, Hartree-Fock, LDA, hybrids)
 have no GPU path and are therefore not covered here.
 
+The Crank-Nicolson propagator (propagate(method="cn")) runs on cuDSS through
+nvmath-python on the GPU and on SuperLU on the CPU; TestPropagateCN asserts the
+two agree.
+
 The whole module is skipped when cupy is not installed, so it is a no-op on
-machines without an NVIDIA GPU (including CI). To run it:
+machines without an NVIDIA GPU (including CI). TestPropagateCN is also skipped
+when nvmath-python is not installed. To run it:
 
     pip install -e ".[gpu]"
     pytest tests/test_gpu.py -v
@@ -188,4 +193,72 @@ class TestPropagate:
         H = iDEA.methods.interacting.hamiltonian(s, GPU=False)
         gpu = iDEA.methods.interacting.propagate(s, state, v_ptrb, self.T, H=H, GPU=True)
         cpu = iDEA.methods.interacting.propagate(s, state, v_ptrb, self.T, H=H, GPU=False)
+        assert np.allclose(cpu.td_space, gpu.td_space, rtol=TD_RTOL, atol=TD_ATOL)
+
+
+class TestPropagateCN:
+    """propagate(method="cn") must agree on CPU (SuperLU) and GPU (cuDSS).
+
+    Both paths run the same Crank-Nicolson scheme with a direct factorisation,
+    so, unlike Crank-Nicolson against the exponential (see
+    tests/test_crank_nicolson.py), they agree to round-off at every time step.
+    """
+
+    N = 40
+    SPIN = "uu"
+    T = np.linspace(0, 1.0, 11)
+
+    @pytest.fixture(scope="class")
+    def setup(self):
+        pytest.importorskip("nvmath", reason="nvmath-python (cuDSS) is required for method='cn' on the GPU")
+        s = make_system(N=self.N, spin=self.SPIN)
+        state = iDEA.methods.interacting.solve(s, k=0, GPU=False)
+        v_ptrb = np.tile(-0.1 * s.x, (self.T.shape[0], 1))
+        return s, state, v_ptrb
+
+    @pytest.fixture(scope="class")
+    def evolutions(self, setup):
+        s, state, v_ptrb = setup
+        cpu = iDEA.methods.interacting.propagate(s, state, v_ptrb, self.T, GPU=False, method="cn")
+        gpu = iDEA.methods.interacting.propagate(s, state, v_ptrb, self.T, GPU=True, method="cn")
+        return s, cpu, gpu
+
+    def test_wavefunction_all_timesteps(self, evolutions):
+        _s, cpu, gpu = evolutions
+        assert cpu.td_space.shape == gpu.td_space.shape
+        assert np.allclose(cpu.td_space, gpu.td_space, rtol=TD_RTOL, atol=TD_ATOL)
+
+    def test_density_evolution(self, evolutions):
+        s, cpu, gpu = evolutions
+        n_cpu = iDEA.observables.density(s, evolution=cpu)
+        n_gpu = iDEA.observables.density(s, evolution=gpu)
+        assert np.allclose(n_cpu, n_gpu, rtol=TD_RTOL, atol=TD_ATOL)
+
+    def test_gpu_conserves_norm(self, evolutions):
+        s, _cpu, gpu = evolutions
+        assert np.allclose(norms(s, gpu.td_space), 1.0, rtol=1e-12, atol=1e-12)
+
+    def test_time_dependent_perturbation(self, setup):
+        """An oscillating field changes the phase every step while reusing the one factorisation."""
+        s, state, _v_ptrb = setup
+        v_ptrb = -0.1 * np.sin(2.0 * self.T)[:, None] * s.x[None, :]
+        cpu = iDEA.methods.interacting.propagate(s, state, v_ptrb, self.T, GPU=False, method="cn")
+        gpu = iDEA.methods.interacting.propagate(s, state, v_ptrb, self.T, GPU=True, method="cn")
+        assert np.allclose(cpu.td_space, gpu.td_space, rtol=TD_RTOL, atol=TD_ATOL)
+
+    def test_three_electron(self, setup):
+        """Three electrons exercises the many-body perturbation diagonal along three axes."""
+        s = make_system(N=12, spin="uud")
+        state = iDEA.methods.interacting.solve(s, k=0, GPU=False)
+        v_ptrb = np.tile(-0.1 * s.x, (self.T.shape[0], 1))
+        cpu = iDEA.methods.interacting.propagate(s, state, v_ptrb, self.T, GPU=False, method="cn")
+        gpu = iDEA.methods.interacting.propagate(s, state, v_ptrb, self.T, GPU=True, method="cn")
+        assert np.allclose(cpu.td_space, gpu.td_space, rtol=TD_RTOL, atol=TD_ATOL)
+
+    def test_accepts_cpu_hamiltonian(self, setup):
+        """propagate(GPU=True, method="cn") must accept a scipy Hamiltonian and move it to the device."""
+        s, state, v_ptrb = setup
+        H = iDEA.methods.interacting.hamiltonian(s, GPU=False)
+        gpu = iDEA.methods.interacting.propagate(s, state, v_ptrb, self.T, H=H, GPU=True, method="cn")
+        cpu = iDEA.methods.interacting.propagate(s, state, v_ptrb, self.T, H=H, GPU=False, method="cn")
         assert np.allclose(cpu.td_space, gpu.td_space, rtol=TD_RTOL, atol=TD_ATOL)

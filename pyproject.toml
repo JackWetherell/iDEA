@@ -41,6 +41,7 @@ dev = [
 ]
 gpu = [
     "cupy-cuda13x>=13.0.0",
+    "nvmath-python[cu13]>=1.0.0; python_version >= '3.10'",
 ]
 
 [project.urls]
