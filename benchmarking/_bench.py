@@ -1,8 +1,9 @@
 """Shared helpers for the iDEA CPU/GPU scaling benchmarks.
 
-Used by gpu.py (ground state) and gpu_td.py (time dependent). Holds the system
-builder, the memory probe, hardware detection, the runtime estimator that backs
-the preamble each script prints before it starts work, and the plotting.
+Used by gpu.py (ground state), gpu_td.py (time dependent) and gpu_cn.py
+(Crank-Nicolson vs exponential propagation). Holds the system builder, the
+memory probes, hardware detection, the runtime estimator that backs the
+preamble each script prints before it starts work, and the plotting.
 """
 
 import os
@@ -68,6 +69,44 @@ def peak_rss_gb(fn):
     thread.start()
     try:
         result = fn()
+    finally:
+        stop.set()
+        thread.join()
+    return result, (peak[0] - baseline) / 1024**3
+
+
+def peak_vram_gb(fn):
+    """Run fn, returning (result, peak GPU memory in use above baseline in GB).
+
+    Samples the device's used memory (cudaMemGetInfo) rather than cupy's memory
+    pool, so it also sees memory that libraries such as cuDSS allocate outside
+    cupy. Cupy's pool is emptied first so cached blocks do not hide the
+    allocations fn makes.
+    """
+    import cupy as cp
+
+    def _used():
+        free, total = cp.cuda.runtime.memGetInfo()
+        return total - free
+
+    cp.get_default_memory_pool().free_all_blocks()
+    baseline = _used()
+    peak = [baseline]
+    stop = threading.Event()
+
+    def _poll():
+        while not stop.is_set():
+            used = _used()
+            if used > peak[0]:
+                peak[0] = used
+            time.sleep(0.01)
+
+    thread = threading.Thread(target=_poll, daemon=True)
+    thread.start()
+    try:
+        result = fn()
+        cp.cuda.Device().synchronize()
+        peak[0] = max(peak[0], _used())
     finally:
         stop.set()
         thread.join()
@@ -186,8 +225,8 @@ def format_duration(seconds: float) -> str:
     return f"~{seconds / 3600:.1f} hr"
 
 
-def print_preamble(title: str, hw: Hardware, sweep, detail: str, estimate_s: float) -> None:
-    """Print detected hardware, the planned sweep and the runtime estimate."""
+def print_preamble(title: str, hw: Hardware, sweep, detail: str, estimate_s: float = None) -> None:
+    """Print detected hardware, the planned sweep and the runtime estimate (if one is available)."""
     rule = "=" * 74
     print(rule)
     print(f"iDEA benchmark - {title}")
@@ -202,7 +241,10 @@ def print_preamble(title: str, hw: Hardware, sweep, detail: str, estimate_s: flo
     print(f"  Detail   : {detail}")
     print(f"  Largest  : {max(sweep) ** 2:,} x {max(sweep) ** 2:,} Hamiltonian")
     print()
-    print(f"  Estimated runtime: {format_duration(estimate_s)} (calibrated on this machine)")
+    if estimate_s is None:
+        print("  Estimated runtime: not available (no reference timings for this benchmark yet)")
+    else:
+        print(f"  Estimated runtime: {format_duration(estimate_s)} (calibrated on this machine)")
     print("  Press Ctrl-C to abort.")
     print(rule)
     print(flush=True)
