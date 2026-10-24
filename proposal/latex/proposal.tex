@@ -1,0 +1,465 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=2.4cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\GW}{\textit{GW}}
+\newcommand{\iDEA}{iDEA}
+\newcommand{\vxc}{v_\mathrm{xc}}
+\newcommand{\teff}{t_\mathrm{eff}}
+\newcommand{\Ueff}{U_\mathrm{eff}}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\setlist{itemsep=2pt,topsep=4pt}
+\setlength{\emergencystretch}{2.5em}
+
+\title{\textbf{Nearsightedness at strong coupling}\\[4pt]
+\large Exact self-energies versus \GW{} and Kohn--Sham potentials in one-dimensional Wigner molecules and stretched bonds}
+\author{Research proposal and work plan for a theoretical model-systems paper\\ built on the \iDEA{} code\\[2pt]
+\small Draft, October 2026 (a Markdown version accompanies this document)}
+\date{}
+
+\begin{document}
+\maketitle
+
+% ---------------------------------------------------------------------------
+\begin{abstract}
+\noindent
+Kohn's principle of nearsightedness says that local electronic properties depend only weakly on distant changes in the external potential. It underlies linear-scaling methods, embedding theories and every local or semilocal approximation in electronic-structure theory. In earlier work with the \iDEA{} code~\cite{wetherell2019}, we showed that the self-energy $\Sigma$ of many-body perturbation theory (MBPT) is advantageously nearsighted, whereas the exact Kohn--Sham (KS) potential is not. That study used \emph{approximate} self-energies, spinless electrons and weakly correlated systems.
+
+The decisive test is strong coupling: stretched bonds, Mott insulators and Wigner molecules. This is where both density-functional theory (DFT) and \GW{} fail, and where few-electron Wigner physics is now imaged in nanotubes, quantum dots and moir\'e artificial atoms~\cite{pecker2013,shapir2019,corrigan2021,li2024}.
+
+We propose to compute, for the first time, \emph{exact} one-body Green's functions and self-energies of interacting electrons in the one-dimensional continuum across the crossover into the Wigner regime, and to compare them with \GW{} and with exact KS potentials.
+
+\textbf{Central hypothesis:} whether the exact self-energy is nearsighted is controlled by near-degeneracy and spin.
+\begin{itemize}
+\item It remains nearsighted for non-degenerate subsystems and for same-spin electrons.
+\item In the strongly correlated singlet regime it develops a low-frequency component that couples distant subsystems, with separation-independent weight: the real-space fingerprint of the Mott pole.
+\item \GW{} remains nearsighted throughout and misses it.
+\end{itemize}
+
+A closed-form result for the Hubbard dimer, verified numerically, already shows this structure. The project uses \iDEA's GPU-accelerated exact solver, the space-time \GW{} implementation in open pull request \#3, and a new exact-Green's-function module. It targets \emph{Phys.\ Rev.\ B}, or \emph{Phys.\ Rev.\ Lett.} if the breakdown proves clean and general. Planned duration is about six months part-time, with under 50 GPU-hours.
+\end{abstract}
+
+% ---------------------------------------------------------------------------
+\section{Background and motivation}
+
+\subsection{Nearsightedness, and what we showed in 2019}
+Kohn introduced nearsightedness to justify linear-scaling DFT~\cite{kohn1996}. Prodan and Kohn sharpened it: at fixed chemical potential, the density at a point responds only to nearby changes in the effective potential~\cite{prodan2005}.
+
+The exact KS potential is \emph{not} nearsighted in this sense:
+\begin{itemize}
+\item For weakly coupled subsystems with different local ionisation energies, the exact exchange--correlation (xc) potential forms spatial steps whose height is set globally~\cite{kraisler2021,hodgson2016,hodgson2017}.
+\item In the symmetric stretched singlet, it forms a peak at the bond midpoint~\cite{buijse1989,helbig2009}.
+\end{itemize}
+
+In Ref.~\cite{wetherell2019}, two electrons were confined to separate one-dimensional (1D) wells. The exact KS potential showed a step, whereas Hartree--Fock and \GW{} self-energies did not. When distant subsystems were combined, the self-energy demonstrated nearsightedness numerically. Related nonlocal-potential schemes point the same way: Koopmans-compliant hybrids~\cite{elmaslmane2018} and generalised KS with a local correlation potential~\cite{hodgson2020}.
+
+\subsection{Why strong coupling is the decisive test}
+The 2019 conclusion is only as strong as \GW's physics, and \GW{} fails qualitatively in strongly correlated regimes:
+\begin{itemize}
+\item static correlation and delocalisation errors in H$_2$ dissociation~\cite{caruso2013,hellgren2015};
+\item the missing vertex in the atomic (Mott) limit of the Hubbard dimer~\cite{romaniello2009};
+\item self-consistency making results worse for two electrons on a sphere~\cite{loos2018}.
+\end{itemize}
+
+In this regime the exact self-energy is expected to contain a Mott pole near the chemical potential, exactly the kind of feature that might \emph{not} be nearsighted. The answer matters for:
+\begin{itemize}
+\item local and embedding self-energy schemes, such as dynamical mean-field theory with its local self-energy~\cite{georges1996};
+\item connector theory, which transfers spectral information from models to materials~\cite{gatti2007,vanzini2022,vanzini2017,vanzini2018};
+\item practical ``nearsighted'' MBPT-inspired functionals.
+\end{itemize}
+
+Strongly correlated few-electron systems are also experimentally topical~\cite{pecker2013,shapir2019,corrigan2021,li2024}, and are the subject of recent \emph{ab initio} 1D studies~\cite{lagasco2026,lagasco2025}.
+
+\subsection{What is missing}
+\begin{itemize}
+\item \textbf{Lattice only.} Exact self-energies exist only for lattice models: the Hubbard dimer~\cite{romaniello2009}, its spectral potential~\cite{vanzini2018}, and exact \GW{} and vertex benchmarks in the extended Hubbard model~\cite{exthubbard2026}. A recent analysis argues that the inferred cancellation of vertex corrections needs re-examination~\cite{forster2024}.
+\item \textbf{No real-space map.} Nobody has mapped the real-space nonlocality of an exact self-energy against separation and correlation strength, side by side with \GW{} and the exact KS potential.
+\item \textbf{Local frequency-dependent alternatives untested.} Neither spectral potentials~\cite{gatti2007,vanzini2017} nor dynamical xc fields~\cite{aryasetiawan2025} have been tested against exact continuum references.
+\end{itemize}
+
+\subsection{Why now, and why \iDEA}
+\iDEA{} (v1.1.0) solves the many-electron Schr\"odinger equation exactly on a 1D grid, for any potential, interaction and spin configuration, with a GPU-accelerated solver. It also provides mean-field methods, an experimental KS strictly-correlated-electrons (KS-SCE) module~\cite{malet2012,malet2013,marie2022} and exact KS inversion. Three developments make this project feasible now:
+\begin{itemize}
+\item \textbf{Space-time \GW.} Open PR~\#3 adds $G_0W_0$, $GW_0$ and fully self-consistent \GW{} in the space-time formalism~\cite{rojas1995,rieger1999}. It uses optimised imaginary-time and imaginary-frequency grids in the spirit of the discrete Lehmann representation~\cite{kaye2022}, and Galitskii--Migdal energies~\cite{galitskii1958}.
+\item \textbf{GPU acceleration.} Three-electron Hamiltonians on grids of about 100--150 points are now practical. This is exactly the $(N+1)$ sector needed for electron addition to a two-electron system.
+\item \textbf{Consolidated fixes.} A set of fixes and many-body observables is ready on feature branches (Sec.~\ref{sec:prereq}).
+\end{itemize}
+
+% ---------------------------------------------------------------------------
+\section{Central hypothesis and preliminary analytic result}\label{sec:dimer}
+
+\subsection{The Hubbard dimer}
+For the half-filled Hubbard dimer, $H=-t\sum_\sigma(c^\dagger_{1\sigma}c_{2\sigma}+\mathrm{h.c.})+U\sum_i n_{i\uparrow}n_{i\downarrow}$, the exact self-energy relative to the non-interacting Hamiltonian is diagonal in the bonding/antibonding basis~\cite{romaniello2009}:
+\begin{equation}
+\Sigma_{b/a}(\omega)=\frac{U}{2}+\frac{U^2/4}{\omega-\mu\mp 3t},\qquad \mu=\frac{U}{2}.
+\end{equation}
+In the site basis, at imaginary frequency $\omega=\mu+i\nu$,
+\begin{equation}
+\Sigma_{12}(\mu+i\nu)=-\frac{3tU^2/4}{\nu^2+9t^2},\qquad
+\int_{-\infty}^{\infty}\!d\nu\,\Sigma_{12}(\mu+i\nu)=-\frac{\pi U^2}{4},\qquad
+\Sigma_{12}(\mu)=-\frac{U^2}{12t}.
+\label{eq:dimer}
+\end{equation}
+We verified these expressions by exact diagonalisation in Fock space (Appendix~\ref{app:dimer}). The pole position, residue and constant are reproduced to ten digits for $0.05\le t/U\le0.2$. The weight $-\pi U^2/4$ is reproduced to quadrature accuracy for $0.01\le t/U\le0.2$.
+
+\subsection{Interpretation}
+As the sites separate, $t$ decays exponentially and the inter-site self-energy behaves in three ways at once:
+\begin{itemize}
+\item \textbf{Finite frequency:} at fixed $\nu\gg t$, $\Sigma_{12}\approx-3tU^2/(4\nu^2)\propto t$, so it is \emph{nearsighted}.
+\item \textbf{Chemical potential:} $\Sigma_{12}(\mu)\propto 1/t$ grows, so it is \emph{ultra-far-sighted}.
+\item \textbf{Integrated weight:} independent of separation.
+\end{itemize}
+The nonlocal part does not disappear. It collapses onto a window of width $\sim3t$ around $\mu$: the Mott pole viewed in real space.
+
+\subsection{Two controls that restore nearsightedness}
+\textbf{Asymmetry.} Site energies $\pm\Delta/2$ suppress the inter-site self-energy, but only gradually (Table~\ref{tab:asym}).
+
+\textbf{Spin.} For two same-spin electrons on two sites, the ground state is a single determinant and $\Sigma$ reduces to its static Hartree--Fock form. There is no low-frequency nonlocal component.
+
+\begin{table}[h]
+\centering\small
+\caption{Asymmetric Hubbard dimer ($U=1$, $\mu$ at midgap): inter-site self-energy and its frequency-integrated weight.}\label{tab:asym}
+\begin{tabular}{ccccc}
+\toprule
+$t/U$ & $\Delta/U$ & $\Sigma_{12}(\mu)/U$ & $\Sigma_{12}(\mu+0.3iU)/U$ & $\int d\nu\,\Sigma_{12}/U^2$\\
+\midrule
+0.05 & 0    & $-1.667$ & $-0.333$ & $-0.785$\\
+0.05 & 0.2  & $-1.111$ & $-0.303$ & $-0.641$\\
+0.05 & 0.5  & $-0.390$ & $-0.201$ & $-0.379$\\
+0.01 & 0    & $-8.333$ & $-0.083$ & $-0.785$\\
+0.01 & 0.05 & $-4.908$ & $-0.082$ & $-0.603$\\
+0.01 & 0.2  & $-0.685$ & $-0.074$ & $-0.225$\\
+0.01 & 0.5  & $-0.117$ & $-0.049$ & $-0.093$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{What the continuum adds}
+The dimer cannot tell us four things:
+\begin{itemize}
+\item the real-space range and shape of the nonlocal component;
+\item the role of long-range Coulomb tails and of the internal structure of Wigner molecules;
+\item the quantitative comparison with the exact KS potential (steps and peaks);
+\item whether \GW{} captures any of it.
+\end{itemize}
+
+% ---------------------------------------------------------------------------
+\section{Research questions and hypotheses}
+
+\begin{description}[style=nextline,leftmargin=1em,labelindent=0pt,itemsep=6pt]
+\item[RQ1 (exact $\Sigma$ in the 2019 setting).] Question: in an asymmetric double well with one electron per well, is the exact $\Sigma(x,x';i\nu)$ nearsighted, for both singlet and triplet?\\
+\textit{H1:} for asymmetry $\Delta\gg\teff$, the exact $\Sigma$ is nearsighted at all frequencies while the exact $\vxc$ shows the step; singlet and triplet behave alike.\\
+\textit{Falsified by:} a sizeable inter-well block at low $\nu$.
+
+\item[RQ2 (symmetric dissociation; central).] Question: how does the inter-subsystem block $\Sigma_{AB}(i\nu)$ scale with separation $d$ and frequency, and does it collapse onto Eq.~\eqref{eq:dimer} with $\teff(d)$ and $\Ueff$ extracted from the exact spectra?\\
+\textit{H2:} in the singlet,
+\begin{itemize}
+\item $\Vert\Sigma_{AB}\Vert$ at fixed $\nu$ decays like $\teff(d)$;
+\item $\Sigma_{AB}(\mu)$ grows like $1/\teff$;
+\item the integrated weight is $d$-independent, $\approx\pi\Ueff^2/4$ on localised orbitals.
+\end{itemize}
+The triplet shows no such component, and asymmetry restores nearsightedness for $\Delta$ between $\sim\teff$ and $\Ueff$.\\
+\textit{Falsified by:} a weight that decays with $d$, or a triplet with the same low-frequency component.
+
+\item[RQ3 (Wigner molecule in a single soft well).] Question: does the spatial range of $\Sigma$ track the Wigner spacing as the coupling $\lambda$ grows, and at which frequencies?\\
+\textit{H3 (exploratory):} the range grows with $\lambda$ and concentrates at low $\nu$, driven by near-degeneracies of the $(N+1)$ Wigner molecule. The \GW{} range, set by Hartree--Fock orbitals, does not grow correspondingly.
+
+\item[RQ4 (approximations).] Question: how do restricted and unrestricted Hartree--Fock, $G_0W_0$@HF, $GW_0$ and self-consistent \GW{} compare with the exact nonlocality?\\
+\textit{H4:}
+\begin{itemize}
+\item Spin-restricted \GW{} is spuriously nearsighted: it has no Mott pole, so the gap is too small.
+\item Unrestricted-HF-based \GW{} opens the gap by static symmetry breaking, which is nearsighted but spin-contaminated. This is the MBPT face of the symmetry dilemma~\cite{perdew1995}.
+\item The exact $\vxc$ is far-sighted in every case. KS-SCE reproduces this at strong coupling~\cite{mirtschink2013,giarrusso2024}.
+\end{itemize}
+
+\item[RQ5 (consequences).] Question: what is lost by \emph{enforcing} nearsightedness, and what is the minimal far-sighted ingredient?\\
+\textit{H5:} truncating $\Sigma$ to intra-subsystem blocks is harmless for the triplet and asymmetric cases but closes the gap in the symmetric singlet. A rank-2 low-frequency ``Mott-pole'' coupling, with parameters from local quantities, restores the ionisation potential (IP), electron affinity (EA) and gap.
+\end{description}
+
+% ---------------------------------------------------------------------------
+\section{Model systems and parameter space}
+\textbf{Interactions.} The default is \iDEA's softened $v(x,x')=1/(|x-x'|+1)$~\cite{wetherell2019}. The soft-Coulomb $1/\sqrt{(x-x')^2+1}$ is a check. A short-range (Yukawa-screened) matrix is a control that separates genuine correlation nonlocality from the Coulomb tail.
+
+\textbf{Units.} Atomic units are used throughout. In effective-mass units (e.g.\ GaAs: Ha$^*\approx11$\,meV, $a_B^*\approx10$\,nm) the same models describe quantum-dot and nanotube devices.
+
+\textbf{Grids.} $N_x\approx80$--150 with the 13-point stencil. The parameters of S1 will be matched to Ref.~\cite{wetherell2019} from its published repository (\href{https://github.com/JackWetherell/advantageous-nearsightedness}{JackWetherell/advantageous-nearsightedness}).
+
+\begin{table}[h]
+\centering\small
+\begin{tabularx}{\textwidth}{@{}lYlYY@{}}
+\toprule
+System & External potential & $N$, spin & Scan & Probes\\
+\midrule
+S1 asymmetric double well & two softened-Coulomb or Gaussian wells, $V_A\neq V_B$, separation $d$ & 2, \code{ud}/\code{uu} & $d=2$--12; $\Delta$ from 0 to $O(\Ueff)$ & RQ1, RQ2, RQ4\\
+S2 symmetric double well & as S1, $V_A=V_B$ & 2, \code{ud}/\code{uu} & $d$ until $\teff\sim10^{-5}$ & RQ2, RQ4, RQ5\\
+S3 single soft well & $\tfrac12\omega^2x^2$ & 2, \code{ud}/\code{uu} & $\lambda=\omega^{-1/2}=1$--6 & RQ3, RQ4\\
+S4 (stretch goal) & as S1--S3 & 3, removal sector only & --- & three-electron photoemission\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% ---------------------------------------------------------------------------
+\section{Methods}
+
+\subsection{Exact ground states}
+\code{iDEA.methods.interacting.solve(s, k, GPU=True)} returns $\Psi_0^N$, and $\langle S^2\rangle$ labels the spin states. For $N=2$ in the \code{ud} configuration, the spatial wavefunction $\psi(x_1,x_2)$ (electron 1 up, electron 2 down) fully specifies the state.
+
+\subsection{Exact one-body Green's function}
+We use the conventions of PR~\#3: zero temperature, real imaginary-time functions, energies measured from $\mu$. For spin $\sigma$,
+\begin{equation}
+G_\sigma(x,x';\tau)=-\theta(\tau)\sum_n f_n(x)f_n^*(x')e^{-(\varepsilon_n^+-\mu)\tau}+\theta(-\tau)\sum_m g_m(x)g_m^*(x')e^{-(\varepsilon_m^--\mu)\tau},
+\end{equation}
+where
+\begin{itemize}
+\item $\varepsilon_n^+=E_n^{N+1}-E_0^N$ and $f_n(x)=\langle\Psi_0^N|\hat\psi_\sigma(x)|\Psi_n^{N+1}\rangle$;
+\item $\varepsilon_m^-=E_0^N-E_m^{N-1}$ and $g_m(x)=\langle\Psi_m^{N-1}|\hat\psi_\sigma(x)|\Psi_0^N\rangle$.
+\end{itemize}
+
+\textbf{Removal sector (exact and complete for $N=2$).} The $(N-1)$ states are the one-body eigenstates $\phi_m$. Removing an up electron gives $g_m(x)=\int dx_2\,\phi_m^*(x_2)\psi(x,x_2)$, with $\sum_m|g_m(x)|^2=n_\uparrow(x)$. This is the same algebra as \code{mbpt.non\_interacting\_green\_function}.
+
+\textbf{Addition sector (Krylov).} We evaluate
+\begin{equation}
+G^+_\sigma(x,x';i\omega)=\langle\chi_x|\,[\,i\omega+\mu-(\hat H^{N+1}-E_0^N)\,]^{-1}|\chi_{x'}\rangle,\qquad |\chi_x\rangle=\hat\psi^\dagger_\sigma(x)|\Psi_0^N\rangle.
+\end{equation}
+\begin{itemize}
+\item $\hat H^{N+1}$ is \iDEA's exact three-electron Hamiltonian.
+\item The source is antisymmetric in the like-spin coordinates, so Lanczos remains in the correct sector.
+\item One Lanczos run per source, with projections onto all $\langle\chi_x|$, gives $G^+$ at every imaginary time and frequency on PR~\#3's \code{SpaceTimeGrid}, and on the real axis with broadening $\eta$.
+\end{itemize}
+
+\textbf{No analytic continuation needed.} The IP and EA follow from the large-$|\tau|$ decay of $G(\tau)$; the density from $G(x,x;0^-)$; the total energy from the Galitskii--Migdal formula.
+
+\subsection{Exact self-energy by Dyson inversion}
+With exact $n$ and one-body density matrix $\gamma$,
+\begin{equation}
+\Sigma_c^{\rm exact}(i\omega)=i\omega+\mu-\hat h_0-v_H[n]-\Sigma_x[\gamma]-G^{-1}(i\omega),
+\end{equation}
+which vanishes as $\omega\to\infty$, because the static limit of the exact $\Sigma$ is the Hartree--Fock operator of the exact $\gamma$. On the grid this inverts PR~\#3's \code{dyson\_equation} (kernel $\times\,\delta x$ convention):
+\begin{equation}
+\Sigma_c=[(i\omega+\mu)\mathbb{1}-H-(G\,\delta x)^{-1}]/\delta x .
+\end{equation}
+
+\subsection{Exact Kohn--Sham potentials}
+\begin{itemize}
+\item \textbf{Two-electron singlet (analytic):} $v_\mathrm{KS}(x)=\varepsilon_H+\tfrac12\partial_x^2\sqrt{n}/\sqrt{n}$, with $\varepsilon_H=-I$.
+\item \textbf{Otherwise:} \code{reverse\_engineering.reverse(s, n, non\_interacting)}.
+\end{itemize}
+In both cases $\vxc=v_\mathrm{KS}-v_\mathrm{ext}-v_H$.
+
+\subsection{Approximations compared}
+\begin{itemize}
+\item Hartree--Fock, restricted and unrestricted.
+\item $G_0W_0$@HF, $GW_0$ and self-consistent \GW{} (\code{mbpt.solve}), from restricted and unrestricted starting points.
+\item LDA and hybrid, as local and semilocal references.
+\item KS-SCE, as a far-sighted functional that is exact at strong coupling.
+\end{itemize}
+
+\subsection{Nearsightedness diagnostics}
+Subsystems are defined by smooth partitions $P_A+P_B=1$ and by localised orbitals $w_{A,B}$ built from natural orbitals.
+\begin{description}[style=nextline,leftmargin=1em,labelindent=0pt]
+\item[M1, transferability:] $\Vert P_A(\Sigma^{AB}-\Sigma^{A})P_A\Vert/\Vert P_A\Sigma^AP_A\Vert$, with $\Sigma^A$ the exact self-energy of subsystem $A$ alone. KS counterpart: $\Vert P_A(\vxc^{AB}-\vxc^A)\Vert$ in the physical gauge.
+\item[M2, range:] Hilbert--Schmidt norm $\Vert\Sigma_{AB}(i\nu)\Vert$ against $d$ and $\nu$, giving a decay length $\xi_\Sigma(\nu)$. KS counterpart: step or peak height against $d$.
+\item[M3, response:] $\delta\Sigma(x,x';i\nu)/\delta v_\mathrm{ext}(y)$ for $y$ in the distant subsystem. KS counterpart: $\delta\vxc(x)/\delta v_\mathrm{ext}(y)$, alongside $\delta n(x)/\delta v_\mathrm{ext}(y)$.
+\item[M4, weight:] $\int d\nu\,\langle w_A|\Sigma(i\nu)|w_B\rangle$, compared with $-\pi\Ueff^2/4$.
+\end{description}
+
+\subsection{Consequence tests (RQ5)}
+\begin{itemize}
+\item \textbf{Truncation:} $\Sigma^{\rm near}=P_A\Sigma P_A+P_B\Sigma P_B$, solved in Dyson's equation and compared with the exact $n$, IP, EA, gap and Galitskii--Migdal energy.
+\item \textbf{Pole correction:} add
+$\Sigma^{\rm pole}_{AB}(i\nu)=-\frac{3\teff\Ueff^2/4}{\nu^2+9\teff^2}\big(|w_A\rangle\langle w_B|+|w_B\rangle\langle w_A|\big)$.
+\item \textbf{Parameters:} $\teff$ from the $(N-1)$ bonding--antibonding splitting and $\Ueff$ from the subsystem IP$-$EA.
+\end{itemize}
+
+\subsection{Validation (automated tests)}
+\begin{enumerate}[label=(\roman*)]
+\item Zero interaction gives $\Sigma\equiv0$.
+\item Small-grid ($N_x\approx20$--25) Lehmann references from full diagonalisation of the $N\pm1$ sectors.
+\item $G(x,x';0^-)=\gamma(x,x')$.
+\item The jump $G(0^+)-G(0^-)=-\delta(x-x')/\delta x$.
+\item $\Sigma(i\omega\to\infty)\to v_H+\Sigma_x[\gamma]$.
+\item The Galitskii--Migdal energy equals the exact eigenvalue.
+\item One-electron checks, linking to self-interaction studies of \GW~\cite{nelson2007,wetherell2018}.
+\item The dimer limit (Eq.~\ref{eq:dimer}) for deep, separated wells.
+\end{enumerate}
+
+% ---------------------------------------------------------------------------
+\section{Implementation in \iDEA}
+
+\subsection{Prerequisites (WP0)}\label{sec:prereq}
+\begin{table}[h]
+\centering\small
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\hsize=1.25\hsize}Y>{\hsize=0.85\hsize}Y>{\hsize=0.9\hsize}Y@{}}
+\toprule
+Item & Where & Why needed\\
+\midrule
+Space-time \GW, \code{SpaceTimeGrid}, \code{dyson\_equation}, Galitskii--Migdal energy & PR \#3 (\code{iDEA/\allowbreak methods/\allowbreak mbpt.py}) & \GW{} comparisons; common grids and conventions\\
+Restricted HF and hybrid exchange was doubled & \code{fix/\allowbreak 40-rhf-\allowbreak exchange} & restricted starting points\\
+\code{antisymmetrize} misaligned \code{space}/\code{spin} with \code{full} & \code{fix/\allowbreak 42-antisymmetrize-\allowbreak alignment} & correct spatial parts of states (used to build sources)\\
+Many-body kinetic and interaction energies & \code{feat/\allowbreak 45-manybody-\allowbreak observables} & energy decompositions; Galitskii--Migdal checks\\
+$\langle S_z\rangle$, $\langle S^2\rangle$ & \code{feat/\allowbreak 46-spin-\allowbreak observables} & spin labels of $N\pm1$ states\\
+Indexing into \code{ManyBodyStates} & \code{feat/\allowbreak 51-manybodystates-\allowbreak index} & brute-force Lehmann validation\\
+Hartree and KS-SCE energy fixes & \code{ccr-\allowbreak 6064c011-\allowbreak 6imjt7} & correct mean-field and KS-SCE energies\\
+KS-SCE checks (default \code{interp\_vsce}, parity, $1/n$ in tails) & new & KS-SCE comparisons; validate against Ref.~\cite{malet2013}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{New code}
+\begin{itemize}
+\item \textbf{\code{iDEA/\allowbreak methods/\allowbreak exact\_green.py}:} \code{green\_function(s, state, grid, ..., GPU)} returns an object compatible with \code{QuasiParticleState}, so existing observables and \code{mbpt.total\_energy} work unchanged. Also \code{self\_energy} and \code{spectral\_function}.
+\item \textbf{\code{iDEA/reverse\_engineering.py}:} the analytic two-electron singlet KS potential.
+\item \textbf{Tests and tutorial:} \path{tests/test_exact_green.py} and \path{tutorial/example_exact_green.ipynb}.
+\item \textbf{Research scripts:} diagnostics and \code{make\_figures.py} in \code{paper/\allowbreak scripts/}, following the draft CPC paper on branch \code{ccr-\allowbreak 6064c011-\allowbreak 6imjt7}.
+\end{itemize}
+
+\subsection{Computational cost}
+At $N_x=130$:
+\begin{itemize}
+\item the $N=2$ ground state (dimension $1.7\times10^4$) takes seconds;
+\item the three-electron sector has dimension $2.2\times10^6$ and about $8\times10^7$ non-zeros (about 1\,GB);
+\item $N_x$ Lanczos runs of 200--400 steps take minutes on an RTX~4090, or about an hour on 4 CPU cores;
+\item Dyson inversions are negligible;
+\item \GW{} takes about a minute per system.
+\end{itemize}
+About 300 exact-$G$ runs, including convergence checks, fit in under 50 GPU-hours.
+
+% ---------------------------------------------------------------------------
+\section{Work packages and timeline}
+\begin{table}[h]
+\centering\small
+\begin{tabularx}{\textwidth}{@{}lYY@{}}
+\toprule
+WP & Content & Milestone\\
+\midrule
+WP0 Consolidation & merge PR \#3 and branches; validate KS-SCE; reproduce Ref.~\cite{wetherell2019} with spin & MS1: 2019 results reproduced\\
+WP1 Exact Green's function & \code{exact\_green.py}, removal and addition sectors, tests (i)--(viii) & MS2: tests pass; Galitskii--Migdal energy exact to $\le10^{-8}$\,Ha\\
+WP2 Diagnostics & M1--M4; truncation and pole tests & MS3 (go/no-go): collapse onto Eq.~\eqref{eq:dimer}? Yes: letter; no: detailed PRB\\
+WP3 Production & S1--S3 scans, \GW{} variants, KS, KS-SCE, convergence & MS4: converged dataset\\
+WP4 Consequences & RQ5; optional exact spectral potential~\cite{vanzini2018}; thesis \GW{} material & MS5\\
+WP5 Paper & manuscript, \code{paper/}, data, README entry & MS6: submission\\
+\bottomrule
+\end{tabularx}
+
+\vspace{6pt}
+\begin{tabular}{lcccccc}
+\toprule
+ & M1 & M2 & M3 & M4 & M5 & M6\\
+\midrule
+WP0 & $\blacksquare$ & & & & & \\
+WP1 & $\blacksquare$ & $\blacksquare$ & & & & \\
+WP2 & & $\blacksquare$ & $\blacksquare$ & & & \\
+WP3 & & & $\blacksquare$ & $\blacksquare$ & & \\
+WP4 & & & & $\blacksquare$ & $\blacksquare$ & \\
+WP5 & & & & & $\blacksquare$ & $\blacksquare$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ---------------------------------------------------------------------------
+\section{Expected results and planned figures}
+\begin{enumerate}
+\item \textbf{Systems and exact KS potentials:} step in the asymmetric case, midpoint peak in the symmetric singlet, none for the triplet.
+\item \textbf{Self-energy maps:} $\Sigma_{xc}(x,x';i\nu)$, exact versus \GW{} versus Hartree--Fock, for S1--S3.
+\item \textbf{Range versus separation:} $\Vert\Sigma_{AB}(i\nu)\Vert$ and the integrated weight against $d$, for singlet, triplet and asymmetric cases, overlaid with $\vxc$ step and peak heights.
+\item \textbf{Mott-pole collapse:} $\langle w_A|\Sigma(i\nu)|w_B\rangle$ rescaled by $\teff$ and $\Ueff$ onto $-(3/4)/(\tilde\nu^2+9)$, with the asymmetry crossover.
+\item \textbf{Consequences:} spectral functions and IP, EA and gap from the exact, \GW{}, truncated and pole-corrected $\Sigma$.
+\end{enumerate}
+
+A positive outcome gives a sharp statement: \emph{nearsightedness of the self-energy is protected by non-degeneracy and spin, and fails in a characteristic low-frequency, separation-independent way in the Mott/Wigner regime.} A negative outcome would strengthen the case of Ref.~\cite{wetherell2019} for MBPT-based local approximations at all correlation strengths.
+
+% ---------------------------------------------------------------------------
+\section{Novelty and positioning}
+\begin{table}[h]
+\centering\small
+\begin{tabularx}{\textwidth}{@{}YYY@{}}
+\toprule
+Prior work & Established & New here\\
+\midrule
+Ref.~\cite{wetherell2019} & approximate $\Sigma$ nearsighted; exact KS step & exact $\Sigma$; spin; strong coupling; frequency resolution\\
+Refs.~\cite{romaniello2009,vanzini2018} & exact dimer $\Sigma$ and spectral potential & real-space continuum; separation and coupling scans\\
+Refs.~\cite{exthubbard2026,forster2024} & lattice benchmarks; vertex cancellation questioned & exact continuum $\Sigma$ against the \GW{} hierarchy\\
+Refs.~\cite{caruso2013,hellgren2015,loos2018} & \GW{} energy and density failures at strong correlation & nonlocality of exact versus approximate $\Sigma$\\
+Ref.~\cite{godby1988} & real-space nonlocality of the \GW{} $\Sigma$ in semiconductors & nonlocality of the exact $\Sigma$ at strong coupling\\
+Refs.~\cite{kohn1996,prodan2005} & nearsightedness of the density & nearsightedness of $\Sigma$ at strong coupling\\
+Refs.~\cite{buijse1989,helbig2009,hodgson2016,hodgson2017,kraisler2021} & steps and peaks of the exact KS potential & side by side with the exact $\Sigma$\\
+Refs.~\cite{malet2012,mirtschink2013,giarrusso2024} & strong-coupling KS reproduces steps and peaks & far-sighted KS-SCE versus the exact $\Sigma$\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% ---------------------------------------------------------------------------
+\section{Risks and mitigations}
+\begin{itemize}
+\item \textbf{Dyson-inversion round-off:} $G$ to near machine precision; checks of the Galitskii--Migdal energy, density and static limit; reduced natural-orbital basis.
+\item \textbf{$(N+1)$-sector grid limit} ($N_x\lesssim150$): compact parameters, 13-point stencil, GPU, block Lanczos.
+\item \textbf{Coulomb tails:} analyse $\Sigma_{xc}$; short-range control runs.
+\item \textbf{Self-consistent \GW{} non-convergence:} damping, $G_0W_0$ and $GW_0$ fallbacks; report as a result.
+\item \textbf{KS-SCE defects:} WP0 validation; otherwise non-self-consistent SCE on exact densities.
+\item \textbf{Scope creep:} extensions only after MS3.
+\end{itemize}
+
+% ---------------------------------------------------------------------------
+\section{Outputs, dissemination and follow-ups}
+\textbf{Outputs.}
+\begin{itemize}
+\item A PRB paper, or a PRL plus a long PRB.
+\item An exact-Green's-function module in \iDEA{} with tests and a tutorial.
+\item A reproducible \code{paper/} directory with data and a README entry.
+\end{itemize}
+
+\textbf{Follow-ups.}
+\begin{enumerate}
+\item Exact continuum spectral potentials (connector theory~\cite{gatti2007,vanzini2022,vanzini2018}) and the dynamical xc field~\cite{aryasetiawan2025}.
+\item Learnability of nearsighted targets versus the hypersensitivity of density-based learning~\cite{arnstein2026}.
+\item Nearsighted generalised-KS correlation potentials~\cite{hodgson2020}.
+\item Three-electron removal spectra and real-time extensions.
+\end{enumerate}
+
+\textbf{Suggested collaborators.}
+\begin{itemize}
+\item M.~J.~P.~Hodgson and R.~W.~Godby (York).
+\item M.~Gatti and L.~Reining (LSI, \'Ecole Polytechnique).
+\item P.~Romaniello and J.~A.~Berger (Toulouse).
+\item D.~P.~Kooi and P.~Gori-Giorgi (KS-SCE).
+\end{itemize}
+
+% ---------------------------------------------------------------------------
+\section{Alternatives considered}
+\begin{itemize}
+\item \textbf{The exchange blind spot:} exact singlet--triplet exchange in 1D Wigner molecules against DFT, KS-SCE and \GW, including exact time-dependent spin-KS potentials for an exchange gate. Spin enters the strong-coupling functional only at order $e^{-\sqrt\lambda}$~\cite{grossi2017}.
+\item \textbf{Machine-learned non-adiabatic xc potentials:} a crowded area~\cite{bhat2026}.
+\item \textbf{Other frontier ideas:} real-time KS-SCE against exact time-dependent KS potentials; exact ensemble DFT in the Wigner regime; exact thermal (Mermin) DFT; KS versus many-body localisation tensor.
+\end{itemize}
+
+% ---------------------------------------------------------------------------
+\appendix
+\section{Hubbard-dimer verification}\label{app:dimer}
+We built the 16-dimensional Fock space with Jordan--Wigner operators, took the $N=2$ ground state, formed the exact $G_{ij}(z)$ from the Lehmann sums over $N\pm1$, and computed $\Sigma=G_0^{-1}-G^{-1}$.
+\begin{itemize}
+\item \textbf{Bonding-channel pole:} fitting $\Sigma_b(\omega)=A+R/(\omega-\mu-p)$ gives $A=U/2$, $p=3t$ and $R=U^2/4$ to ten digits for $t/U=0.05$, 0.1 and 0.2.
+\item \textbf{Inter-site element:} $\Sigma_{12}(\mu+i\nu)$ matches Eq.~\eqref{eq:dimer} at $\nu=0$ and $10t$ for $0.01\le t/U\le0.2$, and is real to $\sim10^{-15}$.
+\item \textbf{Integrated weight:} $-0.78541\,U^2$ for every $t$, against $-\pi U^2/4=-0.78540\,U^2$.
+\end{itemize}
+Table~\ref{tab:asym} uses $\mu=[E_0^{N+1}-E_0^{N-1}]/2$.
+
+% ---------------------------------------------------------------------------
+\bibliographystyle{unsrtnat}
+\bibliography{refs}
+
+\end{document}
