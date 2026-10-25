@@ -28,6 +28,14 @@ iDEA.observables module
    :show-inheritance:
    :undoc-members:
 
+iDEA.plotting module
+--------------------
+
+.. automodule:: iDEA.plotting
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 iDEA.reverse\_engineering module
 --------------------------------
 
