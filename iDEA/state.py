@@ -14,6 +14,7 @@ __all__ = [
     "ManyBodyState",
     "ManyBodyStates",
     "SingleBodyState",
+    "QuasiParticleState",
     "Evolution",
     "ManyBodyEvolution",
     "SingleBodyEvolution",
@@ -149,6 +150,92 @@ class SingleBodyState(State):
         self.down.orbitals = iDEA.utilities.ArrayPlaceholder()
         self.down.occupations = iDEA.utilities.ArrayPlaceholder()
         self.down.occupied = iDEA.utilities.ArrayPlaceholder()
+
+
+class QuasiParticleState(State):
+    r"""
+    State of interacting particles described by the one-body Green's function, as given by many-body perturbation theory.
+
+    The central quantity is the Green's function on the real-space grid and the imaginary-time grid, which is real-valued:
+
+    .. math:: G_\sigma(x,x';\tau) = -\langle T_\tau \hat{\psi}_\sigma(x,\tau) \hat{\psi}^\dagger_\sigma(x',0) \rangle
+
+    and its Fourier transform onto the imaginary-frequency grid:
+
+    .. math:: G_\sigma(x,x';i\omega) = \int d\tau e^{i\omega\tau} G_\sigma(x,x';\tau)
+
+    The equal-time limit gives the density matrix:
+
+    .. math:: \rho_\sigma(x,x') = G_\sigma(x,x';\tau=0^-)
+
+    In the convention of Rojas, Godby and Needs, G(x,x';i tau) = iG(x,x';tau).
+
+    All two-point quantities are stored as kernels A(x,x'), so the operator they represent acts as .. math:: \int A(x,x')f(x')dx'.
+    Imaginary-time quantities are indexed as A[tau,space,space] on the grid tau, and imaginary-frequency
+    quantities as A_iw[omega,space,space] on the grid omega. Static quantities are indexed as A[space,space].
+
+    | tau: np.ndarray, Imaginary-time grid (negative and positive times, ascending), indexed as tau[time].
+    | omega: np.ndarray, Imaginary-frequency grid (non-negative frequencies), indexed as omega[frequency].
+    | grid: iDEA.methods.mbpt.SpaceTimeGrid, Grid object, providing the Fourier transforms between tau and omega.
+    | mode: str, Level of self-consistency used to compute the state ('G0W0', 'GW0' or 'GW').
+    | energy: float, Total energy, computed with the Galitskii-Migdal formula.
+    | v_h: np.ndarray, Hartree potential, indexed as v_h[space].
+    | P: np.ndarray, Irreducible polarisability (summed over spin), indexed as P[tau,space,space].
+    | P_iw: np.ndarray, Irreducible polarisability (summed over spin), indexed as P_iw[omega,space,space].
+    | W_c: np.ndarray, Correlation part of the screened interaction W - v, indexed as W_c[tau,space,space].
+    | W_c_iw: np.ndarray, Correlation part of the screened interaction W - v, indexed as W_c_iw[omega,space,space].
+    | W_iw: np.ndarray, Screened interaction W = v + W_c, indexed as W_iw[omega,space,space].
+
+    For each spin channel (up and down):
+
+    | up.mu: float, Chemical potential that G is measured relative to (lies within the quasiparticle gap).
+    | up.G: np.ndarray, Green's function, indexed as G[tau,space,space].
+    | up.G_iw: np.ndarray, Green's function, indexed as G_iw[omega,space,space].
+    | up.G0: np.ndarray, Green's function of the mean-field starting point, indexed as G0[tau,space,space].
+    | up.G0_iw: np.ndarray, Green's function of the mean-field starting point, indexed as G0_iw[omega,space,space].
+    | up.mu0: float, Chemical potential that G0 is measured relative to.
+    | up.sigma_x: np.ndarray, Exchange self-energy (static), indexed as sigma_x[space,space].
+    | up.sigma_c: np.ndarray, Correlation self-energy, indexed as sigma_c[tau,space,space].
+    | up.sigma_c_iw: np.ndarray, Correlation self-energy, indexed as sigma_c_iw[omega,space,space].
+    | up.sigma_xc_iw: np.ndarray, Exchange-correlation self-energy, indexed as sigma_xc_iw[omega,space,space].
+    | up.sigma_iw: np.ndarray, Total self-energy (Hartree + exchange + correlation), indexed as sigma_iw[omega,space,space].
+    | up.energies: np.ndarray, Quasiparticle energies in the static approximation (self-energy evaluated at the chemical potential), indexed as energies[orbital_number].
+    | up.orbitals: np.ndarray, Quasiparticle orbitals in the static approximation, indexed as orbitals[space,orbital_number].
+    | up.occupations: np.ndarray, Occupations of the quasiparticle orbitals, indexed as occupations[orbital_number].
+    | up.occupied: np.ndarray, Indices of up.occupations that are non-zero, to indicate occupied orbitals.
+    """
+
+    def __init__(self):
+        self.tau = iDEA.utilities.ArrayPlaceholder()
+        self.omega = iDEA.utilities.ArrayPlaceholder()
+        self.grid = None
+        self.mode = None
+        self.energy = 0.0
+        self.v_h = iDEA.utilities.ArrayPlaceholder()
+        self.P = iDEA.utilities.ArrayPlaceholder()
+        self.P_iw = iDEA.utilities.ArrayPlaceholder()
+        self.W_c = iDEA.utilities.ArrayPlaceholder()
+        self.W_c_iw = iDEA.utilities.ArrayPlaceholder()
+        self.W_iw = iDEA.utilities.ArrayPlaceholder()
+
+        self.up = iDEA.utilities.Container()
+        self.down = iDEA.utilities.Container()
+        for spin in (self.up, self.down):
+            spin.mu = 0.0
+            spin.mu0 = 0.0
+            spin.G = iDEA.utilities.ArrayPlaceholder()
+            spin.G_iw = iDEA.utilities.ArrayPlaceholder()
+            spin.G0 = iDEA.utilities.ArrayPlaceholder()
+            spin.G0_iw = iDEA.utilities.ArrayPlaceholder()
+            spin.sigma_x = iDEA.utilities.ArrayPlaceholder()
+            spin.sigma_c = iDEA.utilities.ArrayPlaceholder()
+            spin.sigma_c_iw = iDEA.utilities.ArrayPlaceholder()
+            spin.sigma_xc_iw = iDEA.utilities.ArrayPlaceholder()
+            spin.sigma_iw = iDEA.utilities.ArrayPlaceholder()
+            spin.energies = iDEA.utilities.ArrayPlaceholder()
+            spin.orbitals = iDEA.utilities.ArrayPlaceholder()
+            spin.occupations = iDEA.utilities.ArrayPlaceholder()
+            spin.occupied = iDEA.utilities.ArrayPlaceholder()
 
 
 class ManyBodyEvolution(Evolution):

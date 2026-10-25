@@ -12,6 +12,7 @@ import iDEA.methods.hartree_fock
 import iDEA.methods.lda
 import iDEA.methods.hybrid
 import iDEA.methods.kssce
+import iDEA.methods.mbpt
 import iDEA.reverse_engineering
 
 __all__ = [
@@ -26,6 +27,7 @@ __all__ = [
     "iDEA.methods.hartree_fock",
     "iDEA.methods.lda",
     "iDEA.methods.hybrid",
+    "iDEA.methods.mbpt",
     "iDEA.reverse_engineering",
     "iterate_methods",
     "iterate_mb_methods",

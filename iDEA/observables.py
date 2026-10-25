@@ -24,7 +24,7 @@ def observable(
     | Args:
     |     s: iDEA.system.System, System object.
     |     observable_operator: np.ndarray, Obserbable operator.
-    |     state: iDEA.state.SingleBodyState or iDEA.state.ManyBodyState, State. (default = None)
+    |     state: iDEA.state.SingleBodyState, iDEA.state.ManyBodyState or iDEA.state.QuasiParticleState, State. (default = None)
     |     evolution: iDEA.state.SingleBodyEvolution or iDEA.state.ManyBodyEvolution, Evolution. (default = None)
     |     return_spins: bool, True to also return the spin observables: total, up, down. (default = False)
 
@@ -33,6 +33,16 @@ def observable(
     """
     if state is not None and isinstance(state, iDEA.state.ManyBodyState):
         raise NotImplementedError()
+
+    if state is not None and isinstance(state, iDEA.state.QuasiParticleState):
+        p, up_p, down_p = density_matrix(s, state=state, return_spins=True)
+        up_O = np.sum(observable_operator * up_p.T) * s.dx
+        down_O = np.sum(observable_operator * down_p.T) * s.dx
+        O = up_O + down_O
+        if return_spins:
+            return O, up_O, down_O
+        else:
+            return O
 
     if state is not None and isinstance(state, iDEA.state.SingleBodyState):
         up_O = 0.0
@@ -107,9 +117,13 @@ def density(
     r"""
     Compute the charge density of a non_interacting state.
 
+    For a quasiparticle state the density is given by the Green's function in the equal-time limit:
+
+    .. math:: n_\sigma(x) = G_\sigma(x,x;\tau=0^-)
+
     | Args:
     |     s: iDEA.system.System, System object.
-    |     state: iDEA.state.SingleBodyState or iDEA.state.ManyBodyState, State. (default = None)
+    |     state: iDEA.state.SingleBodyState, iDEA.state.ManyBodyState or iDEA.state.QuasiParticleState, State. (default = None)
     |     evolution: iDEA.state.SingleBodyEvolution or iDEA.state.ManyBodyEvolution, Evolution. (default = None)
     |     time_indices: np.ndarray, Time indices to compute observable if given evolution. If None will perform for all time indices. (default = None)
     |     return_spins: bool, True to also return the spin densities: total, up, down. (default = False)
@@ -117,6 +131,16 @@ def density(
     | Returns:
     |     n: np.ndarray, Charge density, or evolution of charge density.
     """
+    if state is not None and isinstance(state, iDEA.state.QuasiParticleState):
+        p, up_p, down_p = density_matrix(s, state=state, return_spins=True)
+        up_n = np.diag(up_p).copy()
+        down_n = np.diag(down_p).copy()
+        n = up_n + down_n
+        if return_spins:
+            return n, up_n, down_n
+        else:
+            return n
+
     if state is not None and isinstance(state, iDEA.state.ManyBodyState):
         spin_densities = np.zeros(shape=(s.x.shape[0], 2))
         for i in range(s.x.shape[0]):
@@ -204,9 +228,13 @@ def density_matrix(
     r"""
     Compute the charge density matrix of a non_interacting state.
 
+    For a quasiparticle state the density matrix is given by the Green's function in the equal-time limit:
+
+    .. math:: \rho_\sigma(x,x') = G_\sigma(x,x';\tau=0^-)
+
     | Args:
     |     s: iDEA.system.System, System object.
-    |     state: iDEA.state.SingleBodyState or iDEA.state.ManyBodyState, State. (default = None)
+    |     state: iDEA.state.SingleBodyState, iDEA.state.ManyBodyState or iDEA.state.QuasiParticleState, State. (default = None)
     |     evolution: iDEA.state.SingleBodyEvolution or iDEA.state.ManyBodyEvolution, Evolution. (default = None)
     |     time_indices: np.ndarray, Time indices to compute observable if given evolution. If None will perform for all time indices. (default = None)
     |     return_spins: bool, True to also return the spin density matrices: total, up, down. (default = False)
@@ -214,6 +242,15 @@ def density_matrix(
     | Returns:
     |     p: np.ndarray, Charge density matrix, or evolution of charge density matrix.
     """
+    if state is not None and isinstance(state, iDEA.state.QuasiParticleState):
+        up_p = state.grid.interpolate(state.up.G, 0.0)
+        down_p = state.grid.interpolate(state.down.G, 0.0)
+        p = up_p + down_p
+        if return_spins:
+            return p, up_p, down_p
+        else:
+            return p
+
     if state is not None and isinstance(state, iDEA.state.ManyBodyState):
         tosum = list(range(2, s.count * 2))
         spin_p = (
@@ -325,7 +362,7 @@ def kinetic_energy(
 
     | Args:
     |     s: iDEA.system.System, System object.
-    |     state: iDEA.state.SingleBodyState, State. (default = None)
+    |     state: iDEA.state.SingleBodyState or iDEA.state.QuasiParticleState, State. (default = None)
     |     evolution: iDEA.state.SingleBodyEvolution, Evolution. (default = None)
 
     | Returns:
@@ -333,6 +370,10 @@ def kinetic_energy(
     """
     if state is not None and isinstance(state, iDEA.state.ManyBodyState):
         K = iDEA.methods.interacting.kinetic_energy_operator(s)
+        return observable(s, K, state=state)
+
+    if state is not None and isinstance(state, iDEA.state.QuasiParticleState):
+        K = iDEA.methods.non_interacting.kinetic_energy_operator(s)
         return observable(s, K, state=state)
 
     if state is not None and isinstance(state, iDEA.state.SingleBodyState):

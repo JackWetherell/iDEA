@@ -9,3 +9,4 @@ class Methods(Enum):
     LDA = 5
     HYBRID = 6
     KSSCE = 7
+    MBPT = 8
