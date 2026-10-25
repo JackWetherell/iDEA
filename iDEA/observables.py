@@ -550,6 +550,355 @@ def single_particle_energy(s: iDEA.system.System, state: iDEA.state.SingleBodySt
     )
 
 
+def _one_axis(**axes) -> tuple:
+    r"""
+    Check that exactly one of the given axes is provided, and return its name and values.
+
+    | Args:
+    |     **axes: np.ndarray or None, Candidate axes.
+
+    | Returns:
+    |     name: str, Name of the provided axis.
+    |     values: np.ndarray, Values of the provided axis (at least 1D).
+    """
+    provided = {name: values for name, values in axes.items() if values is not None}
+    if len(provided) != 1:
+        raise ValueError(f"Exactly one of {', '.join(axes)} must be given, got {list(provided) or 'none'}.")
+    name, values = provided.popitem()
+    return name, np.atleast_1d(np.asarray(values))
+
+
+def _green_function_poles(s: iDEA.system.System, state, spin: str, **kwargs) -> tuple:
+    r"""
+    Get the pole representation of the Green's function of a spin channel.
+
+    | Args:
+    |     s: iDEA.system.System, System object.
+    |     state: iDEA.state.GreenFunction, iDEA.state.ManyBodyState or iDEA.state.SingleBodyState, State.
+    |     spin: str, Spin channel ('up' or 'down').
+    |     **kwargs: Arguments passed to iDEA.methods.interacting.green_function if state is a ManyBodyState.
+
+    | Returns:
+    |     channel: iDEA.utilities.Container, Pole energies, orbitals and occupations of the spin channel (and the self-energy, if available).
+    |     mu: float, Chemical potential (None if there is no gap).
+    """
+    if spin not in ("up", "down"):
+        raise ValueError(f"spin must be 'up' or 'down', got {spin} instead.")
+    if isinstance(state, iDEA.state.ManyBodyState):
+        state = iDEA.methods.interacting.green_function(s, state, silent=True, **kwargs)
+    if isinstance(state, iDEA.state.GreenFunction):
+        return getattr(state, spin), state.mu
+    if isinstance(state, iDEA.state.SingleBodyState):
+        occupied = np.concatenate([c.energies[c.occupations > 0] for c in (state.up, state.down)])
+        empty = np.concatenate([c.energies[c.occupations < 1] for c in (state.up, state.down)])
+        mu = None
+        if occupied.shape[0] > 0 and empty.shape[0] > 0 and np.min(empty) > np.max(occupied):
+            mu = 0.5 * (np.max(occupied) + np.min(empty))
+        return getattr(state, spin), mu
+    raise TypeError(f"Expected a GreenFunction, ManyBodyState or SingleBodyState, got {type(state)} instead.")
+
+
+def _pole_sum(orbitals: np.ndarray, factors: np.ndarray) -> np.ndarray:
+    r"""
+    Sum over poles: A[k] = sum_n orbitals[:,n] factors[k,n] orbitals[:,n]^dagger.
+
+    | Args:
+    |     orbitals: np.ndarray, Pole orbitals, indexed as orbitals[space,pole].
+    |     factors: np.ndarray, Pole factors, indexed as factors[k,pole].
+
+    | Returns:
+    |     A: np.ndarray, Two-point quantity, indexed as A[k,space,space].
+    """
+    A = np.empty((factors.shape[0],) + (orbitals.shape[0],) * 2, dtype=np.result_type(orbitals, factors))
+    for k in range(factors.shape[0]):
+        A[k] = (orbitals * factors[k]) @ orbitals.conj().T
+    return A
+
+
+def _pole_factors(
+    energies: np.ndarray, particle: np.ndarray, axis: str, values: np.ndarray, eta: float, kind: str, mu: float
+) -> np.ndarray:
+    r"""
+    Compute the factor of each pole at each point of an axis.
+
+    Real time t (time-ordered, retarded or advanced, with t = 0 taken as 0^-), real frequency omega (with
+    broadening eta), complex frequency z, imaginary frequency nu (z = mu + i nu) or imaginary time tau (in the
+    convention of iDEA.methods.mbpt, with tau = 0 taken as 0^-).
+
+    | Args:
+    |     energies: np.ndarray, Pole energies, indexed as energies[pole].
+    |     particle: np.ndarray, Weight of each pole on the particle (addition) side, between 0 and 1, indexed as particle[pole].
+    |     axis: str, 't', 'omega', 'z', 'nu' or 'tau'.
+    |     values: np.ndarray, Points on the axis.
+    |     eta: float, Broadening for real frequencies.
+    |     kind: str, 'time-ordered', 'retarded' or 'advanced' (for t and omega).
+    |     mu: float, Chemical potential (for nu and tau).
+
+    | Returns:
+    |     factors: np.ndarray, Pole factors, indexed as factors[point,pole].
+    """
+    if kind not in ("time-ordered", "retarded", "advanced"):
+        raise ValueError(f"kind must be 'time-ordered', 'retarded' or 'advanced', got {kind} instead.")
+    if axis in ("nu", "tau") and mu is None:
+        raise ValueError("The imaginary axis requires a chemical potential, but this state has no gap.")
+    e = energies[None, :]
+    if axis == "t":
+        t = values[:, None]
+        phase = np.exp(-1.0j * e * t)
+        forward = np.where(t > 0.0, 1.0, 0.0)
+        if kind == "time-ordered":
+            return -1.0j * phase * (forward * particle[None, :] - (1.0 - forward) * (1.0 - particle[None, :]))
+        if kind == "retarded":
+            return -1.0j * phase * forward
+        return 1.0j * phase * (1.0 - forward)
+    if axis == "omega":
+        w = values[:, None]
+        if kind == "time-ordered":
+            return particle[None, :] / (w - e + 1.0j * eta) + (1.0 - particle[None, :]) / (w - e - 1.0j * eta)
+        sign = 1.0 if kind == "retarded" else -1.0
+        return 1.0 / (w - e + sign * 1.0j * eta)
+    if axis == "z":
+        return 1.0 / (values[:, None] - e)
+    if axis == "nu":
+        return 1.0 / (mu + 1.0j * values[:, None] - e)
+    if axis == "tau":
+        tau = values[:, None]
+        decay = np.exp(-abs(e - mu) * abs(tau))
+        return np.where(tau > 0.0, -particle[None, :] * decay, (1.0 - particle[None, :]) * decay)
+    raise ValueError(f"Unknown axis {axis}.")
+
+
+def _energy_filter(energies: np.ndarray, mu: float, cutoff: float) -> np.ndarray:
+    r"""
+    Smooth energy filter of the poles about the chemical potential (or zero, if there is no gap).
+
+    | Args:
+    |     energies: np.ndarray, Pole energies, indexed as energies[pole].
+    |     mu: float, Chemical potential (or None).
+    |     cutoff: float, Width of the filter.
+
+    | Returns:
+    |     weights: np.ndarray, Weights, indexed as weights[pole].
+    """
+    reference = 0.0 if mu is None else mu
+    return np.exp(-0.5 * ((energies - reference) / cutoff) ** 2)
+
+
+def green_function(
+    s: iDEA.system.System,
+    state,
+    t: np.ndarray = None,
+    omega: np.ndarray = None,
+    z: np.ndarray = None,
+    nu: np.ndarray = None,
+    tau: np.ndarray = None,
+    eta: float = 0.05,
+    kind: str = "time-ordered",
+    spin: str = "up",
+    cutoff: float = None,
+    **kwargs,
+) -> np.ndarray:
+    r"""
+    Compute the one-body Green's function of a spin channel on a time or frequency axis.
+
+    .. math:: G(x,x';t) = -i \langle T \hat{\psi}(x,t) \hat{\psi}^\dagger(x',0) \rangle, \qquad G(x,x';z) = \sum_k \frac{d_k(x) d_k^*(x')}{z - \varepsilon_k}
+
+    Exactly one axis must be given: real time t, real frequency omega (broadened by eta), complex frequency z,
+    imaginary frequency nu (z = mu + i nu, as in iDEA.methods.mbpt) or imaginary time tau (G(tau) = -<T psi(tau)
+    psi^dagger(0)>, as in iDEA.methods.mbpt). The equal-time limit is taken as t = 0^-, so that G(t=0) = i rho and
+    G(tau=0) = rho, the density matrix.
+
+    | Args:
+    |     s: iDEA.system.System, System object.
+    |     state: iDEA.state.GreenFunction (exact, from iDEA.methods.interacting.green_function), iDEA.state.ManyBodyState (the exact Green's function is computed), iDEA.state.SingleBodyState (mean-field) or iDEA.state.QuasiParticleState (GW, imaginary axis only).
+    |     t: np.ndarray, Real times. (default = None)
+    |     omega: np.ndarray, Real frequencies. (default = None)
+    |     z: np.ndarray, Complex frequencies. (default = None)
+    |     nu: np.ndarray, Imaginary frequencies, measured from the chemical potential. (default = None)
+    |     tau: np.ndarray, Imaginary times. (default = None)
+    |     eta: float, Broadening of real-frequency quantities. (default = 0.05)
+    |     kind: str, 'time-ordered', 'retarded' or 'advanced' (for t and omega). (default = 'time-ordered')
+    |     spin: str, Spin channel, 'up' or 'down'. (default = 'up')
+    |     cutoff: float, If given, weight each pole by exp(-(e - mu)^2 / (2 cutoff^2)), a smooth energy filter about the chemical potential. This band-limits the result for visualisation (the highest grid energies otherwise dominate real-time plots); the result is then no longer exact. (default = None)
+    |     **kwargs: Arguments passed to iDEA.methods.interacting.green_function if state is a ManyBodyState.
+
+    | Returns:
+    |     G: np.ndarray, Green's function, indexed as G[point,space,space].
+    """
+    axis, values = _one_axis(t=t, omega=omega, z=z, nu=nu, tau=tau)
+    if isinstance(state, iDEA.state.QuasiParticleState):
+        channel = getattr(state, spin)
+        if axis == "nu":
+            return state.grid.fourier_transform(channel.G, omega=values)
+        if axis == "tau":
+            return state.grid.interpolate(channel.G, values)
+        raise NotImplementedError("A QuasiParticleState is only available on the imaginary axis (nu or tau).")
+    channel, mu = _green_function_poles(s, state, spin, **kwargs)
+    particle = 1.0 - np.asarray(channel.occupations, dtype=float)
+    factors = _pole_factors(channel.energies, particle, axis, values, eta, kind, mu)
+    if cutoff is not None:
+        factors = factors * _energy_filter(channel.energies, mu, cutoff)[None, :]
+    return _pole_sum(channel.orbitals, factors)
+
+
+def self_energy(
+    s: iDEA.system.System,
+    state,
+    t: np.ndarray = None,
+    omega: np.ndarray = None,
+    z: np.ndarray = None,
+    nu: np.ndarray = None,
+    tau: np.ndarray = None,
+    eta: float = 0.05,
+    kind: str = "time-ordered",
+    part: str = "xc",
+    method: str = "poles",
+    spin: str = "up",
+    cutoff: float = None,
+    **kwargs,
+) -> np.ndarray:
+    r"""
+    Compute the self-energy of a spin channel on a time or frequency axis.
+
+    .. math:: G^{-1}(z) = z - h_0 - v_h - \Sigma_{xc}(z), \qquad \Sigma_{xc}(z) = \Sigma_x + \Sigma_c(z)
+
+    The exchange part is static, so in the time domain it is a delta function, and only the correlation part
+    (part = 'c') is available on the t and tau axes. The axes are as in green_function. With method = 'poles' the
+    self-energy is evaluated from its pole representation (see iDEA.state.GreenFunction); with method = 'dyson' it
+    is found by inverting Dyson's equation at each frequency (complex, real or imaginary frequencies only).
+
+    | Args:
+    |     s: iDEA.system.System, System object.
+    |     state: iDEA.state.GreenFunction, iDEA.state.ManyBodyState (the exact Green's function is computed) or iDEA.state.QuasiParticleState (GW, imaginary axis only).
+    |     t, omega, z, nu, tau: np.ndarray, Axis (exactly one must be given; not needed for part = 'x'). (default = None)
+    |     eta: float, Broadening of real-frequency quantities. (default = 0.05)
+    |     kind: str, 'time-ordered', 'retarded' or 'advanced' (for t and omega). (default = 'time-ordered')
+    |     part: str, 'xc' (exchange-correlation), 'c' (correlation) or 'x' (exchange, static). (default = 'xc')
+    |     method: str, 'poles' or 'dyson'. (default = 'poles')
+    |     spin: str, Spin channel, 'up' or 'down'. (default = 'up')
+    |     cutoff: float, If given (method = 'poles' only), weight each correlation pole by exp(-(e - mu)^2 / (2 cutoff^2)), a smooth energy filter for visualisation; the result is then no longer exact. (default = None)
+    |     **kwargs: Arguments passed to iDEA.methods.interacting.green_function if state is a ManyBodyState.
+
+    | Returns:
+    |     sigma: np.ndarray, Self-energy, indexed as sigma[point,space,space] (or sigma[space,space] for part = 'x').
+    """
+    if part not in ("xc", "c", "x"):
+        raise ValueError(f"part must be 'xc', 'c' or 'x', got {part} instead.")
+    if method not in ("poles", "dyson"):
+        raise ValueError(f"method must be 'poles' or 'dyson', got {method} instead.")
+    if isinstance(state, iDEA.state.ManyBodyState):
+        state = iDEA.methods.interacting.green_function(s, state, silent=True, **kwargs)
+    if isinstance(state, iDEA.state.SingleBodyState):
+        raise TypeError(
+            "The self-energy is not defined for a SingleBodyState; use a GreenFunction or QuasiParticleState."
+        )
+    channel = getattr(state, spin)
+    if part == "x":
+        return np.array(channel.sigma_x)
+    axis, values = _one_axis(t=t, omega=omega, z=z, nu=nu, tau=tau)
+    if part == "xc" and axis in ("t", "tau"):
+        raise ValueError("The exchange self-energy is a delta function in time; use part = 'c' on the t and tau axes.")
+    static = channel.sigma_x if part == "xc" else 0.0
+
+    if isinstance(state, iDEA.state.QuasiParticleState):
+        if axis == "nu":
+            return state.grid.fourier_transform(channel.sigma_c, omega=values) + static
+        if axis == "tau":
+            return state.grid.interpolate(channel.sigma_c, values)
+        raise NotImplementedError("A QuasiParticleState is only available on the imaginary axis (nu or tau).")
+    if not isinstance(state, iDEA.state.GreenFunction):
+        raise TypeError(f"Expected a GreenFunction, ManyBodyState or QuasiParticleState, got {type(state)} instead.")
+
+    if method == "dyson":
+        if axis in ("t", "tau"):
+            raise ValueError("method = 'dyson' is only available on frequency axes (omega, z or nu).")
+        if axis == "omega":
+            shift = {"time-ordered": 0.0, "retarded": 1.0j * eta, "advanced": -1.0j * eta}[kind]
+            frequencies = values + shift
+        elif axis == "nu":
+            frequencies = state.mu + 1.0j * values
+        else:
+            frequencies = values
+        G = green_function(s, state, eta=eta, kind=kind, spin=spin, **{axis: values})
+        h = iDEA.methods.non_interacting.hamiltonian(s)[0] + np.diag(state.v_h)
+        identity = np.eye(s.x.shape[0])
+        sigma = np.array([(w * identity - h - np.linalg.inv(g * s.dx)) / s.dx for w, g in zip(frequencies, G)])
+        return sigma if part == "xc" else sigma - channel.sigma_x
+
+    particle = np.where(channel.sigma_character > 0, 1.0, 0.0)
+    if axis == "tau":
+        particle = np.where(channel.sigma_energies > state.mu, 1.0, 0.0)
+    factors = _pole_factors(channel.sigma_energies, particle, axis, values, eta, kind, state.mu)
+    if cutoff is not None:
+        factors = factors * _energy_filter(channel.sigma_energies, state.mu, cutoff)[None, :]
+    return _pole_sum(channel.sigma_orbitals, factors) + static
+
+
+def spectral_function(
+    s: iDEA.system.System,
+    state,
+    omega: np.ndarray,
+    eta: float = 0.05,
+    spin: str = "up",
+    diagonal: bool = False,
+    **kwargs,
+) -> np.ndarray:
+    r"""
+    Compute the spectral function of a spin channel, broadened by Lorentzians of width eta.
+
+    .. math:: A(x,x';\omega) = \frac{i}{2\pi}[G^R(\omega) - G^{R\dagger}(\omega)] = \sum_k d_k(x) d_k^*(x') \frac{\eta/\pi}{(\omega - \varepsilon_k)^2 + \eta^2}
+
+    | Args:
+    |     s: iDEA.system.System, System object.
+    |     state: iDEA.state.GreenFunction, iDEA.state.ManyBodyState (the exact Green's function is computed) or iDEA.state.SingleBodyState (mean-field).
+    |     omega: np.ndarray, Real frequencies.
+    |     eta: float, Broadening. (default = 0.05)
+    |     spin: str, Spin channel, 'up' or 'down'. (default = 'up')
+    |     diagonal: bool, Return only the local spectral function A(x,x;omega). (default = False)
+    |     **kwargs: Arguments passed to iDEA.methods.interacting.green_function if state is a ManyBodyState.
+
+    | Returns:
+    |     A: np.ndarray, Spectral function, indexed as A[omega,space,space] (or A[omega,space] if diagonal).
+    """
+    channel, _ = _green_function_poles(s, state, spin, **kwargs)
+    omega = np.atleast_1d(np.asarray(omega, dtype=float))
+    lorentzians = (eta / np.pi) / ((omega[:, None] - channel.energies[None, :]) ** 2 + eta**2)
+    if diagonal:
+        return lorentzians @ (abs(channel.orbitals) ** 2).T
+    return _pole_sum(channel.orbitals, lorentzians)
+
+
+def galitskii_migdal_energy(s: iDEA.system.System, state, **kwargs) -> float:
+    r"""
+    Compute the total energy from the Green's function with the Galitskii-Migdal formula. In Lehmann form this is
+    a sum over the removal poles of each spin channel:
+
+    .. math:: E = \frac{1}{2} \sum_\sigma \sum_{m} \langle d_m | h_0 + \varepsilon_m | d_m \rangle
+
+    | Args:
+    |     s: iDEA.system.System, System object.
+    |     state: iDEA.state.GreenFunction, iDEA.state.ManyBodyState (the exact Green's function is computed) or iDEA.state.QuasiParticleState (GW).
+    |     **kwargs: Arguments passed to iDEA.methods.interacting.green_function if state is a ManyBodyState.
+
+    | Returns:
+    |     E: float, Total energy.
+    """
+    if isinstance(state, iDEA.state.QuasiParticleState):
+        from iDEA.methods import mbpt
+
+        return mbpt.total_energy(s, state)
+    h0 = iDEA.methods.non_interacting.hamiltonian(s)[0]
+    E = 0.0
+    for spin in ("up", "down"):
+        channel, _ = _green_function_poles(s, state, spin, **kwargs)
+        removal = channel.occupations > 0
+        d = channel.orbitals[:, removal]
+        weights = channel.occupations[removal]
+        E += 0.5 * s.dx * np.real(np.sum(weights * np.sum(d.conj() * (h0 @ d), axis=0)))
+        E += 0.5 * s.dx * np.real(np.sum(weights * channel.energies[removal] * np.sum(abs(d) ** 2, axis=0)))
+    return float(E)
+
+
 def _placeholder(
     s: iDEA.system.System,
     state: Union[iDEA.state.SingleBodyState, iDEA.state.ManyBodyState] = None,

@@ -15,6 +15,7 @@ __all__ = [
     "ManyBodyStates",
     "SingleBodyState",
     "QuasiParticleState",
+    "GreenFunction",
     "Evolution",
     "ManyBodyEvolution",
     "SingleBodyEvolution",
@@ -236,6 +237,70 @@ class QuasiParticleState(State):
             spin.orbitals = iDEA.utilities.ArrayPlaceholder()
             spin.occupations = iDEA.utilities.ArrayPlaceholder()
             spin.occupied = iDEA.utilities.ArrayPlaceholder()
+
+
+class GreenFunction(State):
+    r"""
+    Exact one-body Green's function and self-energy of an interacting state, in Lehmann (pole) form.
+
+    The Green's function of each spin channel is a sum over the poles of the (N-1) and (N+1)-electron systems:
+
+    .. math:: G_\sigma(x,x';z) = \sum_k \frac{d_k(x) d_k^*(x')}{z - \varepsilon_k}
+
+    where the removal poles are :math:`\varepsilon_k = E_0^N - E_k^{N-1}` with Dyson orbitals
+    :math:`d_k(x) = \langle \Psi_k^{N-1} | \hat{\psi}_\sigma(x) | \Psi_0^N \rangle` (occupation 1), and the addition
+    poles are :math:`\varepsilon_k = E_k^{N+1} - E_0^N` with Dyson orbitals
+    :math:`d_k(x) = \langle \Psi_0^N | \hat{\psi}_\sigma(x) | \Psi_k^{N+1} \rangle` (occupation 0). This is the same
+    structure as a SingleBodyState (energies, orbitals and occupations), so the same code evaluates mean-field and
+    exact Green's functions.
+
+    The exchange-correlation self-energy, defined by
+    :math:`G^{-1}(z) = z - h_0 - v_h - \Sigma_{xc}(z)`, is stored as a static exchange part and a sum over poles:
+
+    .. math:: \Sigma_{xc,\sigma}(x,x';z) = \Sigma_{x,\sigma}(x,x') + \sum_p \frac{r_p(x) r_p^*(x')}{z - \zeta_p}
+
+    Each self-energy pole has a character :math:`s_p \in [-1,1]`, the weight with which it is built from addition
+    (+1) and removal (-1) poles of G. Its sign gives the time ordering of the pole: particle-like if :math:`s_p > 0`,
+    hole-like if :math:`s_p < 0`.
+
+    All two-point quantities are stored as kernels A(x,x'), so the operator they represent acts as
+    .. math:: \int A(x,x') f(x') dx
+    and the orbitals are normalised so that :math:`\sum_k d_k(x) d_k^*(x') = \delta(x-x')`.
+
+    | mu: float, Chemical potential at the centre of the gap, (E_0^{N+1} - E_0^{N-1})/2, over both spin channels (None if there is no gap).
+    | energy: float, Total energy of the interacting state.
+    | v_h: np.ndarray, Hartree potential, indexed as v_h[space].
+    | info: dict, Details of the calculation (solvers, sector dimensions and sum-rule residuals).
+
+    For each spin channel (up and down):
+
+    | up.mu: float, Chemical potential (the same for both spin channels).
+    | up.energies: np.ndarray, Pole energies, indexed as energies[pole].
+    | up.orbitals: np.ndarray, Dyson orbitals, indexed as orbitals[space,pole].
+    | up.occupations: np.ndarray, Occupations of the poles (1 for removal, 0 for addition), indexed as occupations[pole].
+    | up.sigma_x: np.ndarray, Exchange self-energy (static), indexed as sigma_x[space,space].
+    | up.sigma_energies: np.ndarray, Correlation self-energy pole energies, indexed as sigma_energies[pole].
+    | up.sigma_orbitals: np.ndarray, Correlation self-energy pole residue vectors, indexed as sigma_orbitals[space,pole].
+    | up.sigma_character: np.ndarray, Character of the self-energy poles (> 0 particle-like, < 0 hole-like), indexed as sigma_character[pole].
+    """
+
+    def __init__(self):
+        self.mu = None
+        self.energy = 0.0
+        self.v_h = iDEA.utilities.ArrayPlaceholder()
+        self.info = {}
+
+        self.up = iDEA.utilities.Container()
+        self.down = iDEA.utilities.Container()
+        for spin in (self.up, self.down):
+            spin.mu = None
+            spin.energies = iDEA.utilities.ArrayPlaceholder()
+            spin.orbitals = iDEA.utilities.ArrayPlaceholder()
+            spin.occupations = iDEA.utilities.ArrayPlaceholder()
+            spin.sigma_x = iDEA.utilities.ArrayPlaceholder()
+            spin.sigma_energies = iDEA.utilities.ArrayPlaceholder()
+            spin.sigma_orbitals = iDEA.utilities.ArrayPlaceholder()
+            spin.sigma_character = iDEA.utilities.ArrayPlaceholder()
 
 
 class ManyBodyEvolution(Evolution):

@@ -14,6 +14,7 @@ import iDEA.methods.hybrid
 import iDEA.methods.kssce
 import iDEA.methods.mbpt
 import iDEA.reverse_engineering
+import iDEA.plotting
 
 __all__ = [
     "iDEA.utilities",
@@ -29,6 +30,7 @@ __all__ = [
     "iDEA.methods.hybrid",
     "iDEA.methods.mbpt",
     "iDEA.reverse_engineering",
+    "iDEA.plotting",
     "iterate_methods",
     "iterate_mb_methods",
     "iterate_sb_methods",
