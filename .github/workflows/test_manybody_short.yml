@@ -48,3 +48,7 @@ jobs:
     - name: Run TestShort with pytest 
       run: |
         pytest tests/test_manybody.py::TestShort
+
+    - name: Run the exact Green's function tests with pytest
+      run: |
+        pytest tests/test_green_function.py

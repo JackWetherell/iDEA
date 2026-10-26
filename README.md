@@ -56,6 +56,10 @@ ruff format iDEA/ tests/ benchmarking/
 
 To run unit tests: `pytest -v`
 
+The many-body perturbation theory tests in `tests/test_mbpt.py` check the GW implementation against results computed independently of its imaginary time and frequency grids (sums over states built from the random phase approximation, and brute-force frequency integration), as well as particle-number conservation and starting-point independence of self-consistent GW. They take about a minute.
+
+The exact Green's function tests in `tests/test_green_function.py` check the exact $G$ and $\Sigma_{xc}$ against their sum rules (normalisation, density matrix, first moment, Galitskii–Migdal energy), against direct inversion of Dyson's equation, and against the non-interacting limit, for one, two and three electrons. They take about a minute.
+
 The GPU tests in `tests/test_gpu.py` check that the GPU and CPU produce the same results for interacting ground-state and time-dependent calculations. They are skipped automatically unless CuPy is installed (see [GPU Acceleration](#gpu-acceleration)). On an Intel i9 / RTX 4090 these take roughly 26 minutes.
 
 ### Benchmarking
@@ -87,6 +91,8 @@ Some of iDEA's features:
     - Restricted and unrestricted Hartree-Fock
     - The Local Density Approximation (LDA)
     - Hybrid functionals
+    - Many-body perturbation theory in the GW approximation: one-shot (G0W0), partially self-consistent (GW0) and fully self-consistent (GW) (see [Many-Body Perturbation Theory](#many-body-perturbation-theory))
+- The exact Green's function and exact exchange-correlation self-energy of the interacting system, in real and imaginary time and frequency, with videos of them (see [Exact Green's Function and Self-Energy](#exact-greens-function-and-self-energy)).
 - Implementation of all common observables.
 - Reverse-engineering to solve potential inversion, from exact Kohn-Sham DFT and beyond.
 - Fully parallelised using OpenBLAS.
@@ -139,6 +145,66 @@ A few things to be aware of:
 - The speedup grows with system size: the finer the grid and the more electrons, the more the GPU helps.
 
 You can measure the performance benefit on your own hardware using the scripts in the `benchmarking` directory — see [Benchmarking](#benchmarking).
+
+## Many-Body Perturbation Theory
+
+iDEA can solve Hedin's equations in the GW approximation to give the ground-state one-body Green's function $G$ of the interacting system, from which the charge density, self-energy and screened interaction follow:
+
+```python
+import iDEA
+
+system = iDEA.system.systems.atom
+
+# Fully self-consistent GW, starting from Hartree-Fock.
+state = iDEA.methods.mbpt.solve(system)
+
+# One-shot G0W0 (or partially self-consistent GW0) from a chosen starting point.
+state = iDEA.methods.mbpt.solve(system, mode="G0W0", initial="lda")
+
+n = iDEA.observables.density(system, state=state)  # n(x) = G(x,x;tau=0^-)
+E = state.energy                                    # Galitskii-Migdal total energy
+```
+
+The returned `iDEA.state.QuasiParticleState` contains everything computed along the way, on the real-space grid and on imaginary time (`state.tau`) and imaginary frequency (`state.omega`) grids. For each spin channel (`state.up`, `state.down`) it holds the Green's function `G` / `G_iw`, the starting-point Green's function `G0` / `G0_iw`, and the exchange `sigma_x`, correlation `sigma_c` / `sigma_c_iw`, exchange-correlation `sigma_xc_iw` and total `sigma_iw` self-energies. It also holds the polarisability `state.P` / `state.P_iw` and the screened interaction `state.W_iw` (with its correlation part `state.W_c` / `state.W_c_iw`). `state.grid` provides the Fourier transforms between imaginary time and frequency, and interpolation to any imaginary time or frequency.
+
+The implementation follows the GW space-time method of Rojas, Godby and Needs: polarisabilities and self-energies are formed in real space and imaginary time, while the screened interaction and Dyson's equation are solved on the imaginary frequency axis. Instead of uniform grids, which need a time step smaller than the inverse of the largest single-particle energy on the real-space grid, it uses imaginary time and frequency grids optimised for decaying exponentials. Each grid holds roughly 50–100 points, and the Fourier transforms between them are accurate to about $10^{-10}$. The chemical potential is kept in the centre of the quasiparticle gap with the Hedin shift, as in the original iDEA code; this does not change self-consistent (GW and GW0) results. Each building block of Hedin's equations is also available on its own: `non_interacting_green_function`, `polarisability`, `screened_interaction`, `exchange_self_energy`, `correlation_self_energy` and `dyson_equation`.
+
+A worked example, which compares GW with exact and Hartree-Fock results and steps through Hedin's equations one at a time, is given in [tutorial/example_mbpt.ipynb](tutorial/example_mbpt.ipynb).
+
+## Exact Green's Function and Self-Energy
+
+iDEA can also construct the exact one-body Green's function $G(x,x')$ and the exact exchange-correlation self-energy $\Sigma_{xc}(x,x')$ of the interacting system, from the exact eigenstates of the $N-1$, $N$ and $N+1$ electron systems:
+
+```python
+import numpy as np
+import iDEA
+
+# The one-dimensional hydrogen atom.
+x = np.linspace(-12, 12, 61)
+system = iDEA.system.System(x, -1.0 / (abs(x) + 1.0), iDEA.interactions.softened_interaction(x), "u")
+ground_state = iDEA.methods.interacting.solve(system, k=0)
+
+# Exact G and Sigma_xc in pole form, from the eigenstates of the N-1, N and N+1 electron systems.
+green = iDEA.methods.interacting.green_function(system, ground_state)
+
+omega = np.linspace(-1.0, 2.0, 150)
+G = iDEA.observables.green_function(system, green, omega=omega, eta=0.05)  # G(x,x';omega), shape (150, 61, 61)
+sigma_xc = iDEA.observables.self_energy(system, green, omega=omega)  # Sigma_xc(x,x';omega)
+sigma_c = iDEA.observables.self_energy(system, green, t=np.linspace(0, 20, 200), part="c")  # Sigma_c(x,x';t)
+sigma_iw = iDEA.observables.self_energy(system, green, nu=np.linspace(0, 3, 50))  # Sigma_xc(x,x';mu+i*nu)
+A = iDEA.observables.spectral_function(system, green, omega, diagonal=True)  # A(x,x;omega)
+E = iDEA.observables.galitskii_migdal_energy(system, green)  # equals ground_state.energy
+
+# Videos of G and Sigma_xc as functions of (x,x'), one frame per frequency.
+iDEA.plotting.animate_green_function(system, green, omega=omega, file_name="G_omega.gif")
+iDEA.plotting.animate_self_energy(system, green, omega=omega, spin="down", file_name="Sigma_xc_omega.gif")
+```
+
+The returned `iDEA.state.GreenFunction` holds, for each spin channel, the Lehmann representation of $G$ (pole energies $E_0-E^{N-1}_k$ and $E^{N+1}_k-E_0$ with their Dyson orbitals) and the exact self-energy in the same form: the static exchange part $\Sigma_x$, which is the Fock operator of the exact density matrix, and the poles and residues of $\Sigma_c$. These are computed by block Lanczos (Löwdin partitioning) on the poles of $G$. From them `iDEA.observables` evaluates $G$ and $\Sigma$ in real time (time-ordered, retarded or advanced), at real or complex frequency, and on the imaginary time and frequency axes used by `iDEA.methods.mbpt`, so exact and GW results can be compared directly. `green_function`, `self_energy` and `galitskii_migdal_energy` also accept a `QuasiParticleState`, and `self_energy(..., method="dyson")` gives $\Sigma_{xc}$ by direct inversion of Dyson's equation as an independent check.
+
+The $N\pm1$ electron Hamiltonians are built in a basis of ordered Slater determinants. Sectors up to `dense_max` determinants are diagonalised completely. Larger sectors use a block Krylov method seeded with the $N\pm1$ electron states $\hat\psi^{(\dagger)}(x)|\Psi_0\rangle$, which keeps the sum rules (normalisation, density matrix, first moment and Galitskii–Migdal energy) exact. Both run on the GPU with `GPU=True`. The residuals of these sum rules are reported in `green.info`.
+
+A worked example for the one-dimensional hydrogen atom is given in [tutorial/example_green_function.ipynb](tutorial/example_green_function.ipynb). It checks that the exact self-energy is free of self-interaction, $(v_H + \Sigma_{xc}(\omega))\,\phi = 0$ for the occupied orbital $\phi$, and compares it with GW. [tutorial/green_function_hydrogen.py](tutorial/green_function_hydrogen.py) runs the same calculation from the command line on larger grids and writes the videos.
 
 ## Tutorial
 
